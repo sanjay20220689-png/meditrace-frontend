@@ -1,5 +1,5 @@
 // api.js  — put this in your FRONTEND-HTML folder
-const BASE_URL = "http://localhost:5000"; // change to your deployed backend URL later
+const BASE_URL = "https://meditrace-backend-production.up.railway.app"; // change to your deployed backend URL later
 
 async function getToken() {
   return localStorage.getItem("meditrace_token");
