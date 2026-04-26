@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>MediTrace - Sales (FEFO)</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brandRed: "#cc0000", brandBlue: "#455b94",
+            pageBg: "#ffffff", cardBg: "#f3f4f6", panelBg: "#f7f8fa",
+            textDark: "#111418", textMuted: "#637588",
+            pageBgDark: "#0b1220", cardBgDark: "#0f1a2b", panelBgDark: "#0c1626",
+            textMutedDark: "#9fb0c8", borderDark: "#1f2c45",
+          },
+          fontFamily: { display: ["Public Sans", "sans-serif"] },
+          borderRadius: { xl: "1.25rem", "2xl": "1.5rem" },
+          boxShadow: { soft: "0 30px 80px rgba(17, 24, 39, 0.18)" },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { font-family: "Public Sans", sans-serif; }
+    .dd { box-shadow: 0 18px 40px rgba(17,24,39,0.12); }
+    .skeleton { animation: pulse 1.5s ease-in-out infinite; background: linear-gradient(90deg,rgba(0,0,0,0.06) 25%,rgba(0,0,0,0.1) 50%,rgba(0,0,0,0.06) 75%); background-size:200% 100%; }
+    .dark .skeleton { background: linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%); background-size:200% 100%; }
+    @keyframes pulse { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  </style>
+</head>
+
+<body data-page="sales" class="h-screen overflow-hidden bg-pageBg dark:bg-pageBgDark font-display">
+<div class="h-screen flex overflow-hidden">
+
+  <!-- Sidebar -->
+  <aside class="hidden lg:flex w-[92px] p-4">
+    <div class="w-full rounded-[24px] bg-cardBg dark:bg-cardBgDark shadow-soft border border-black/5 dark:border-borderDark flex flex-col items-center py-4 gap-4">
+      <a href="dashboard.html" class="group relative h-12 w-12 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center">
+        <span class="material-symbols-outlined text-brandRed text-2xl" style="font-variation-settings:'FILL' 1">medical_services</span>
+        <span class="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Dashboard</span>
+      </a>
+      <div class="h-px w-10 bg-black/10 dark:bg-borderDark my-1"></div>
+      <nav class="flex flex-col items-center gap-2">
+        <a href="dashboard.html" data-nav="dashboard" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">home</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Dashboard</span>
+        </a>
+        <a href="sales.html" data-nav="sales" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">point_of_sale</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Sales (FEFO)</span>
+        </a>
+        <a href="inventory.html" data-nav="inventory" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">inventory_2</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Inventory</span>
+        </a>
+        <a href="expiry-alerts.html" data-nav="expiry" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">warning</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Expiry Alerts</span>
+        </a>
+        <a href="nmra-reports.html" data-nav="nmra" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">description</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">NMRA Reports</span>
+        </a>
+        <a href="forecasting.html" data-nav="forecast" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">analytics</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Forecasting</span>
+        </a>
+        <a href="users.html" data-nav="users" id="navUsersLink" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10" style="display:none">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">manage_accounts</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">User Management</span>
+        </a>
+        <a href="account.html" data-nav="account" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">account_circle</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">My Account</span>
+        </a>
+      </nav>
+      <div class="mt-auto flex flex-col items-center gap-2">
+        <button id="themeToggleSide" class="group relative h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center hover:bg-white transition" aria-label="Toggle dark mode">
+          <span id="themeIconSide" class="material-symbols-outlined text-textDark dark:text-white">dark_mode</span>
+          <span class="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Toggle theme</span>
+        </button>
+        <button class="group relative h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center hover:bg-white transition" onclick="logout()" aria-label="Logout">
+          <span class="material-symbols-outlined text-textDark dark:text-white">logout</span>
+          <span class="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+    <header class="flex-shrink-0 z-40 px-6 lg:px-10 py-4">
+      <div class="rounded-[24px] bg-cardBg dark:bg-cardBgDark shadow-soft border border-black/5 dark:border-borderDark px-5 py-4">
+        <div class="flex items-center justify-between gap-4">
+          <a href="dashboard.html" class="flex items-center gap-3">
+            <div class="h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center">
+              <span class="material-symbols-outlined text-brandRed text-2xl" style="font-variation-settings:'FILL' 1">medical_services</span>
+            </div>
+            <div class="hidden sm:block">
+              <p class="text-textDark dark:text-white font-black leading-tight">MediTrace</p>
+              <p class="text-[11px] text-textMuted dark:text-textMutedDark -mt-0.5">Sales • FEFO</p>
+            </div>
+          </a>
+          <div class="flex items-center gap-2">
+            <button id="themeToggleTop" class=" h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center hover:bg-white transition">
+              <span id="themeIconTop" class="material-symbols-outlined text-textDark dark:text-white">dark_mode</span>
+            </button>
+            <button onclick="logout()" class="h-11 px-5 rounded-full bg-brandRed text-white font-extrabold text-sm hover:bg-brandRed/90 transition">Logout</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 overflow-hidden px-6 lg:px-10 pb-4">
+      <div class="max-w-[1200px] mx-auto h-full flex flex-col">
+
+        <div class="flex flex-wrap items-end justify-between gap-4 mt-1">
+          <div>
+            <h1 class="text-3xl font-black text-textDark dark:text-white">Sales Interface</h1>
+          </div>
+          <!-- Loading indicator -->
+          <div id="medsLoadingBadge" class="inline-flex items-center gap-2 rounded-full bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark px-4 py-2">
+            <span class="h-2 w-2 bg-amber-400 rounded-full animate-pulse"></span>
+            <span class="text-xs font-extrabold text-textMuted dark:text-textMutedDark">Loading medications…</span>
+          </div>
+          <div id="medsReadyBadge" class="hidden inline-flex items-center gap-2 rounded-full bg-green-500/10 border border-green-500/20 px-4 py-2">
+            <span class="h-2 w-2 bg-green-500 rounded-full"></span>
+            <span id="medsReadyText" class="text-xs font-extrabold text-green-700 dark:text-green-400"></span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-3 flex-1 min-h-0">
+
+          <!-- Left: sale form -->
+          <section class="lg:col-span-2 rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft overflow-hidden flex flex-col min-h-0">
+            <div class="px-6 py-4 border-b border-black/5 dark:border-borderDark flex items-center justify-between gap-3 flex-wrap flex-shrink-0">
+              <div>
+                <p class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">New Sale</p>
+                <p class="text-lg font-black text-textDark dark:text-white">
+                  Invoice: <span id="invoiceId" class="text-brandBlue">—</span>
+                </p>
+              </div>
+              <div class="inline-flex items-center gap-2 rounded-full bg-brandBlue/10 dark:bg-brandBlue/15 border border-black/10 dark:border-borderDark px-4 py-2">
+                <span class="material-symbols-outlined text-brandBlue text-[18px]">verified</span>
+                <span class="text-xs font-extrabold text-brandBlue uppercase">FEFO Enforced</span>
+              </div>
+            </div>
+
+            <div class="p-5 space-y-4 flex-1 overflow-y-auto">
+              <!-- Search -->
+              <div>
+                <label class="text-sm font-extrabold text-textDark dark:text-white">Search medication</label>
+                <div class="mt-2 relative">
+                  <div class="flex items-center gap-2 rounded-full border border-black/10 dark:border-borderDark bg-white/70 dark:bg-white/10 px-4 h-12">
+                    <span class="material-symbols-outlined text-textMuted dark:text-textMutedDark">search</span>
+                    <input id="medicineSearch"
+                      class="w-full bg-transparent border-none focus:ring-0 outline-none text-textDark dark:text-white placeholder:text-textMuted/70 dark:placeholder:text-textMutedDark/70"
+                      placeholder="Type medicine name…" autocomplete="off" />
+                    <span class="material-symbols-outlined text-textMuted dark:text-textMutedDark">medication</span>
+                  </div>
+                  <div id="searchDropdown" class="hidden absolute left-0 right-0 mt-2 z-30 rounded-2xl bg-white dark:bg-cardBgDark border border-black/10 dark:border-borderDark dd overflow-hidden max-h-72 overflow-y-auto">
+                    <div class="px-4 py-3 text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase bg-black/5 dark:bg-white/5 sticky top-0">Suggestions</div>
+                    <div id="searchItems"></div>
+                  </div>
+                </div>
+
+                <div class="mt-3 flex flex-wrap items-center gap-2">
+                  <div class="inline-flex items-center gap-2 rounded-full bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark px-4 py-2">
+                    <span class="material-symbols-outlined text-brandRed">pill</span>
+                    <div class="leading-tight">
+                      <p class="text-sm font-black text-textDark dark:text-white" id="selectedMedName">No medication selected</p>
+                      <p class="text-[11px] font-semibold text-textMuted dark:text-textMutedDark" id="selectedMedMeta">Search above to find a medication</p>
+                    </div>
+                  </div>
+                  <button id="clearSelectedBtn" class="hidden h-10 px-4 rounded-full bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark font-extrabold text-sm text-textDark dark:text-white hover:bg-white transition" onclick="clearSelectedMedicine()">
+                    Clear
+                  </button>
+                </div>
+              </div>
+
+              <!-- Batches table -->
+              <div class="rounded-[24px] border border-black/5 dark:border-borderDark overflow-hidden">
+                <div class="p-4 bg-white/60 dark:bg-white/5 flex items-center justify-between gap-3 flex-wrap">
+                  <p class="font-black text-textDark dark:text-white">Available Batches (FEFO order)</p>
+                  <span class="text-xs font-extrabold text-brandBlue">Earliest expiry = recommended</span>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left">
+                    <thead class="bg-white/70 dark:bg-white/5">
+                      <tr>
+                        <th class="px-4 py-3 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Batch No.</th>
+                        <th class="px-4 py-3 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Expiry</th>
+                        <th class="px-4 py-3 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">In Stock</th>
+                        <th class="px-4 py-3 text-xs font-black text-textMuted dark:text-textMutedDark uppercase text-right">Unit Price</th>
+                        <th class="px-4 py-3 text-xs font-black text-textMuted dark:text-textMutedDark uppercase text-center">Add</th>
+                      </tr>
+                    </thead>
+                    <tbody id="batchRows" class="divide-y divide-black/5 dark:divide-borderDark">
+                      <tr>
+                        <td colspan="5" class="px-4 py-6 text-center text-textMuted dark:text-textMutedDark font-semibold">
+                          Search and select a medication to load its batches.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- Right: SPC + Cart -->
+          <aside class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft flex flex-col min-h-0 overflow-hidden">
+
+            <!-- Invoice strip — always visible, never moves -->
+            <div class="px-5 py-3 border-b border-black/5 dark:border-borderDark flex items-center justify-between flex-shrink-0">
+              <div>
+                <p class="text-[10px] font-extrabold text-textMuted dark:text-textMutedDark uppercase">Invoice</p>
+                <p class="text-sm font-black text-brandBlue" id="invoiceIdRight">—</p>
+              </div>
+              <div class="inline-flex items-center gap-1.5 rounded-full bg-brandBlue/10 dark:bg-brandBlue/20 px-3 py-1">
+                <span class="material-symbols-outlined text-brandBlue text-sm">verified</span>
+                <span class="text-[10px] font-extrabold text-brandBlue uppercase">FEFO Enforced</span>
+              </div>
+            </div>
+
+            <!-- SPC panel — COMPACT single-row, never causes layout shift -->
+            <div class="flex-shrink-0 border-b border-black/5 dark:border-borderDark">
+              <div id="spcEmpty" class="px-4 py-2.5 flex items-center gap-2">
+                <span class="material-symbols-outlined text-textMuted dark:text-textMutedDark text-sm">swap_horiz</span>
+                <p class="text-xs text-textMuted dark:text-textMutedDark">Select a branded medication to see SPC alternative</p>
+              </div>
+              <div id="spcCard" class="hidden px-4 py-2.5 bg-amber-50/80 dark:bg-amber-900/10">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-1.5">
+                      <span class="material-symbols-outlined text-amber-600 text-sm flex-shrink-0">info</span>
+                      <p class="text-xs font-black text-amber-900 dark:text-amber-200 truncate" id="altName">—</p>
+                    </div>
+                    <p class="text-[10px] text-amber-700 dark:text-amber-300 mt-0.5 pl-5" id="altMeta"></p>
+                    <p class="text-[10px] pl-5 mt-0.5">
+                      <span class="text-textMuted dark:text-textMutedDark" id="origPriceText">—</span>
+                      <span class="text-textMuted dark:text-textMutedDark"> → </span>
+                      <span class="font-extrabold text-textDark dark:text-white" id="altPriceText">—</span>
+                      <span class="font-extrabold text-green-600 ml-1" id="savingsText"></span>
+                    </p>
+                  </div>
+                  <div class="flex gap-1.5 flex-shrink-0">
+                    <button onclick="replaceWithAlternative()" class="h-8 px-3 rounded-full bg-amber-600 text-white font-extrabold text-xs hover:bg-amber-700 transition">
+                      Use
+                    </button>
+                    <a id="spcFullViewLink" href="sales-spc.html" class="h-8 w-8 rounded-full border border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/20 transition flex items-center justify-center">
+                      <span class="material-symbols-outlined text-sm">open_in_new</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cart header — always visible -->
+            <div class="px-5 py-3 border-b border-black/5 dark:border-borderDark flex items-center justify-between flex-shrink-0">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-textDark dark:text-white text-base">shopping_cart</span>
+                <p class="font-black text-textDark dark:text-white text-sm">Cart</p>
+                <span id="cartCount" class="hidden text-[10px] font-extrabold bg-brandRed text-white px-1.5 py-0.5 rounded-full leading-none"></span>
+              </div>
+              <button class="text-xs text-brandBlue font-extrabold hover:underline" onclick="clearCart()">Clear all</button>
+            </div>
+
+            <!-- Cart items — THE ONLY THING THAT SCROLLS -->
+            <div id="cartItems" class="flex-1 overflow-y-auto min-h-0 px-4 py-3 space-y-2">
+              <p class="text-sm text-textMuted dark:text-textMutedDark text-center py-6">No items added yet.</p>
+            </div>
+
+            <!-- Total + Complete Sale — PINNED AT BOTTOM, NEVER MOVES -->
+            <div class="flex-shrink-0 border-t-2 border-black/5 dark:border-borderDark bg-white/50 dark:bg-white/5 px-5 py-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <p class="font-black text-textDark dark:text-white">Total</p>
+                <p id="cartTotal" class="text-2xl font-black text-brandRed">LKR 0</p>
+              </div>
+              <div id="saleError" class="hidden flex items-center gap-2 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 px-3 py-2">
+                <span class="material-symbols-outlined text-brandRed text-sm">error</span>
+                <p id="saleErrorText" class="text-xs font-semibold text-brandRed"></p>
+              </div>
+              <button id="completeSaleBtn" onclick="completeSale()"
+                class="h-12 w-full rounded-full bg-brandRed text-white font-extrabold hover:bg-brandRed/90 transition shadow-[0_18px_50px_rgba(204,0,0,0.18)] flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined">receipt</span>Complete Sale
+              </button>
+            </div>
+          </aside>
+        </div>
+
+        <!-- Sale success modal -->
+        <div id="successModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.5)">
+          <div class="w-full max-w-md rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-8 text-center">
+            <div class="h-16 w-16 rounded-full bg-green-500/10 grid place-items-center mx-auto">
+              <span class="material-symbols-outlined text-green-500 text-4xl">check_circle</span>
+            </div>
+            <h3 class="text-2xl font-black text-textDark dark:text-white mt-4">Sale Complete!</h3>
+            <p id="successInvoice" class="text-brandBlue font-extrabold mt-1"></p>
+            <p id="successSummary" class="text-sm text-textMuted dark:text-textMutedDark mt-2"></p>
+            <p class="text-xs text-textMuted dark:text-textMutedDark mt-1">Stock levels updated. Audit log entry created.</p>
+            <button onclick="closeSuccessModal()" class="mt-6 h-12 w-full rounded-full bg-brandBlue text-white font-extrabold hover:bg-brandBlue/90 transition">
+              New Sale
+            </button>
+          </div>
+        </div>
+
+        <footer class="mt-8 pb-10 text-xs text-textMuted dark:text-textMutedDark">
+          <div class="rounded-[24px] bg-cardBg dark:bg-cardBgDark border border-black/5 dark:border-borderDark shadow-soft px-5 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2"><span class="h-2 w-2 bg-green-500 rounded-full"></span><span class="font-semibold">System status: Connected</span></div>
+            <span class="font-semibold">v1.0.0 | © 2026 MediTrace Systems</span>
+          </div>
+        </footer>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  const BASE_URL = "http://localhost:5000";
+
+  // Auth guard
+  const token  = localStorage.getItem("meditrace_token");
+  const expiry = localStorage.getItem("meditrace_token_expiry");
+  if (!token || !expiry || Date.now() > parseInt(expiry)) { localStorage.clear(); window.location.href = "index.html"; }
+  function logout() { localStorage.clear(); window.location.href = "index.html"; }
+
+  async function apiFetch(endpoint, options = {}) {
+    const res = await fetch(`${BASE_URL}${endpoint}`, {
+      ...options,
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, ...(options.headers || {}) }
+    });
+    if (res.status === 401) { logout(); return null; }
+    return res.json();
+  }
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  let allMeds          = [];  // all medication objects from API
+  let selectedMed      = null; // currently selected medication object
+  let selectedBatches  = [];  // FEFO-sorted batches for selected med
+  let cartItems        = [];  // { medicineId, batchId, medName, batchNumber, qty, unitPrice, maxQty }
+  let currentInvoiceId = generateInvoiceId();
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  async function init() {
+    document.getElementById("invoiceId").textContent = currentInvoiceId;
+    document.getElementById("invoiceIdRight").textContent = currentInvoiceId;
+
+    const medsData = await apiFetch("/api/medications");
+    allMeds = (medsData || []).filter(m => m.isActive !== false);
+
+    document.getElementById("medsLoadingBadge").classList.add("hidden");
+    document.getElementById("medsReadyBadge").classList.remove("hidden");
+    document.getElementById("medsReadyText").textContent = `${allMeds.length} medications loaded`;
+
+    renderSuggestions("");
+
+    // Handle ?selectMed= param (returning from sales-spc.html after applying an alternative)
+    const params = new URLSearchParams(window.location.search);
+    const selectMedId = params.get("selectMed");
+    if (selectMedId) {
+      history.replaceState({}, "", "sales.html");
+      await selectMedicine(selectMedId);
+      showToast("SPC alternative applied — batches loaded.");
+    }
+  }
+
+  // ── Invoice ID ─────────────────────────────────────────────────────────────
+  function generateInvoiceId() {
+    return `INV-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+  }
+
+  // ── Search / dropdown ──────────────────────────────────────────────────────
+  const searchInput   = document.getElementById("medicineSearch");
+  const dropdown      = document.getElementById("searchDropdown");
+  const searchItemsEl = document.getElementById("searchItems");
+
+  function renderSuggestions(q) {
+    const query = (q || "").toLowerCase().trim();
+    const list  = query
+      ? allMeds.filter(m => m.name.toLowerCase().includes(query) || (m.genericName || "").toLowerCase().includes(query))
+      : allMeds.slice(0, 12);
+
+    if (list.length === 0) {
+      searchItemsEl.innerHTML = `<div class="px-4 py-4 text-sm text-textMuted dark:text-textMutedDark text-center">No medications found.</div>`;
+      return;
+    }
+
+    searchItemsEl.innerHTML = list.map(m => `
+      <button class="w-full text-left px-4 py-3 hover:bg-black/5 dark:hover:bg-white/5 transition flex items-center justify-between gap-4"
+              onclick="selectMedicine('${m.medicineId}')">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="material-symbols-outlined text-brandRed flex-shrink-0">medication</span>
+          <div class="min-w-0">
+            <p class="text-sm font-extrabold text-textDark dark:text-white truncate">${esc(m.name)}${m.isSPC ? ' <span class="text-[10px] font-extrabold bg-brandBlue/10 text-brandBlue px-1.5 py-0.5 rounded-full">SPC</span>' : ""}</p>
+            <p class="text-[11px] font-semibold text-textMuted dark:text-textMutedDark">${esc(m.genericName || "—")} · ${esc(m.strength || "—")}</p>
+          </div>
+        </div>
+        <span class="text-xs font-extrabold text-textMuted dark:text-textMutedDark flex-shrink-0">
+          ${m.sellingPrice != null ? `LKR ${m.sellingPrice}` : ""}
+        </span>
+      </button>`).join("");
+  }
+
+  searchInput.addEventListener("focus", () => { renderSuggestions(searchInput.value); dropdown.classList.remove("hidden"); });
+  searchInput.addEventListener("input", () => { renderSuggestions(searchInput.value); dropdown.classList.remove("hidden"); });
+  document.addEventListener("click", e => {
+    if (!searchInput.closest(".relative").contains(e.target)) dropdown.classList.add("hidden");
+  });
+
+  // ── Select medication → load FEFO batches ──────────────────────────────────
+  async function selectMedicine(medicineId) {
+    dropdown.classList.add("hidden");
+
+    const med = allMeds.find(m => m.medicineId === medicineId);
+    if (!med) return;
+
+    selectedMed = med;
+    document.getElementById("selectedMedName").textContent = med.name;
+    document.getElementById("selectedMedMeta").textContent = `${med.genericName || "—"} · ${med.strength || "—"}`;
+    document.getElementById("clearSelectedBtn").classList.remove("hidden");
+    searchInput.value = med.name;
+
+    // Show skeleton while loading batches
+    document.getElementById("batchRows").innerHTML = `
+      <tr><td colspan="5" class="px-4 py-4"><div class="skeleton h-8 rounded-xl"></div></td></tr>
+      <tr><td colspan="5" class="px-4 py-4"><div class="skeleton h-8 rounded-xl"></div></td></tr>`;
+
+    const batchData = await apiFetch(`/api/batches/medication/${medicineId}`);
+
+    // FEFO: sort by expiry ascending, filter out zero-stock and expired
+    const today = new Date();
+    selectedBatches = (batchData || [])
+      .filter(b => b.quantityAvailable > 0 && new Date(b.expiryDate) > today)
+      .sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+
+    renderBatches();
+
+    // Pre-fetch the SPC alternative's batches so we can show its real selling price
+    const alt = findSpcAlternative(med);
+    if (alt) {
+      const altBatchData = await apiFetch(`/api/batches/medication/${alt.medicineId}`);
+      const altBatches = (altBatchData || [])
+        .filter(b => b.quantityAvailable > 0 && new Date(b.expiryDate) > new Date())
+        .sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+      // Store price on the alt object so renderSpcPanel can use it
+      if (altBatches.length > 0 && alt.sellingPrice == null) {
+        alt._batchSellingPrice = altBatches[0].sellingPrice;
+      }
+    }
+
+    renderSpcPanel(med, alt);
+  }
+
+  function clearSelectedMedicine() {
+    selectedMed     = null;
+    selectedBatches = [];
+    document.getElementById("selectedMedName").textContent = "No medication selected";
+    document.getElementById("selectedMedMeta").textContent = "Search above to find a medication";
+    document.getElementById("clearSelectedBtn").classList.add("hidden");
+    searchInput.value = "";
+    document.getElementById("batchRows").innerHTML = `
+      <tr><td colspan="5" class="px-4 py-6 text-center text-textMuted dark:text-textMutedDark font-semibold">Search and select a medication to load its batches.</td></tr>`;
+    renderSpcPanel(null);
+  }
+
+  // ── Batch table ────────────────────────────────────────────────────────────
+  function renderBatches() {
+    const tbody = document.getElementById("batchRows");
+
+    if (!selectedBatches.length) {
+      tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-textMuted dark:text-textMutedDark font-semibold">No stock available for this medication.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = selectedBatches.map((b, i) => {
+      const isRecommended = i === 0;
+      const diff = Math.ceil((new Date(b.expiryDate) - new Date()) / 86400000);
+      const expiryClass = diff <= 30 ? "text-brandRed font-extrabold" : diff <= 90 ? "text-amber-600 dark:text-amber-400 font-extrabold" : "text-textMuted dark:text-textMutedDark";
+      const price = b.sellingPrice ?? selectedMed?.sellingPrice ?? 0;
+
+      return `<tr class="${isRecommended ? "bg-brandBlue/5 border-l-4 border-brandBlue" : ""}">
+        <td class="px-4 py-4 font-mono text-sm ${isRecommended ? "font-extrabold text-textDark dark:text-white" : "text-textMuted dark:text-textMutedDark"}">
+          ${esc(b.batchNumber)}
+          ${isRecommended ? `<span class="ml-1 text-[10px] font-extrabold bg-brandBlue/10 text-brandBlue px-2 py-0.5 rounded-full">FEFO</span>` : ""}
+        </td>
+        <td class="px-4 py-4 text-sm ${expiryClass}">${esc(b.expiryDate)} <span class="text-[10px] opacity-70">(${diff}d)</span></td>
+        <td class="px-4 py-4 text-sm font-bold ${b.quantityAvailable < 20 ? "text-amber-600 dark:text-amber-400" : "text-textDark dark:text-white"}">${b.quantityAvailable}</td>
+        <td class="px-4 py-4 text-right text-sm ${isRecommended ? "font-extrabold text-textDark dark:text-white" : "text-textMuted dark:text-textMutedDark"}">LKR ${price}</td>
+        <td class="px-4 py-4 text-center">
+          <button onclick="addToCart('${b.batchId}','${esc(b.batchNumber)}',${price},${b.quantityAvailable})"
+            class="h-9 px-4 rounded-full ${isRecommended ? "bg-brandRed text-white hover:bg-brandRed/90" : "bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark text-textDark dark:text-white hover:bg-white"} font-extrabold text-xs transition">
+            Add
+          </button>
+        </td>
+      </tr>`;
+    }).join("");
+  }
+
+  // ── SPC panel ──────────────────────────────────────────────────────────────
+  function isSpcMed(m) {
+    // Handle boolean true OR string "true" from Firestore
+    return m.isSPC === true || m.isSPC === "true";
+  }
+
+  // Get the effective selling price — prefer med doc field, fall back to loaded batch price.
+  function getEffectivePrice(med) {
+    if (med.sellingPrice != null) return Number(med.sellingPrice);
+    if (selectedMed && med.medicineId === selectedMed.medicineId && selectedBatches.length > 0) {
+      const bp = selectedBatches[0].sellingPrice;
+      if (bp != null) return Number(bp);
+    }
+    return null;
+  }
+
+  function findSpcAlternative(med) {
+    if (!med || isSpcMed(med)) return null;
+    const spcAlts = allMeds.filter(m =>
+      m.medicineId !== med.medicineId &&
+      isSpcMed(m) &&
+      (m.genericName || "").toLowerCase() === (med.genericName || "").toLowerCase()
+    );
+    if (spcAlts.length === 0) return null;
+    return spcAlts.sort((a, b) => (a.sellingPrice ?? 0) - (b.sellingPrice ?? 0))[0];
+  }
+
+  function renderSpcPanel(med, prefetchedAlt) {
+    const emptyEl = document.getElementById("spcEmpty");
+    const cardEl  = document.getElementById("spcCard");
+
+    if (!med) { emptyEl.classList.remove("hidden"); cardEl.classList.add("hidden"); return; }
+
+    const alt = prefetchedAlt || findSpcAlternative(med);
+    if (!alt) { emptyEl.classList.remove("hidden"); cardEl.classList.add("hidden"); return; }
+
+    // Price: medication doc field → pre-fetched batch price → null
+    const medPrice = getEffectivePrice(med);
+    const altPrice = alt.sellingPrice != null
+      ? Number(alt.sellingPrice)
+      : (alt._batchSellingPrice != null ? Number(alt._batchSellingPrice) : null);
+
+    emptyEl.classList.add("hidden");
+    cardEl.classList.remove("hidden");
+
+    document.getElementById("altName").textContent       = alt.name;
+    document.getElementById("altMeta").textContent       = `${alt.genericName || ""} · ${alt.strength || ""} · Bio-equivalent SPC`;
+    document.getElementById("origPriceText").textContent = medPrice != null ? `LKR ${medPrice}` : "—";
+    document.getElementById("altPriceText").textContent  = altPrice != null ? `LKR ${altPrice}` : "—";
+    document.getElementById("savingsText").textContent   = (medPrice != null && altPrice != null && medPrice > altPrice)
+      ? `LKR ${medPrice - altPrice} per unit`
+      : (medPrice != null && altPrice != null ? "Same price" : "—");
+
+    cardEl.dataset.altId = alt.medicineId;
+    const spcLink = document.getElementById("spcFullViewLink");
+    if (spcLink) spcLink.href = `sales-spc.html?med=${encodeURIComponent(med.medicineId)}`;
+  }
+
+  
+  async function replaceWithAlternative() {
+    const altId = document.getElementById("spcCard").dataset.altId;
+    if (!altId) return;
+    await selectMedicine(altId);
+  }
+
+  // ── Cart ───────────────────────────────────────────────────────────────────
+  function addToCart(batchId, batchNumber, unitPrice, maxQty) {
+    if (!selectedMed) return;
+
+    const existing = cartItems.find(i => i.batchId === batchId);
+    if (existing) {
+      if (existing.qty >= existing.maxQty) { showToast(`Only ${existing.maxQty} units in stock.`, "error"); return; }
+      existing.qty++;
+    } else {
+      cartItems.push({
+        medicineId:  selectedMed.medicineId,
+        batchId,
+        medName:     selectedMed.name,
+        batchNumber,
+        qty:         1,
+        unitPrice,
+        maxQty,
+      });
+    }
+    renderCart();
+    showToast(`Added ${selectedMed.name} (Batch ${batchNumber})`);
+  }
+
+  function changeQty(batchId, delta) {
+    const item = cartItems.find(i => i.batchId === batchId);
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty > item.maxQty) { item.qty = item.maxQty; showToast(`Max stock: ${item.maxQty}`, "error"); }
+    if (item.qty <= 0) cartItems = cartItems.filter(i => i.batchId !== batchId);
+    renderCart();
+  }
+
+  function removeFromCart(batchId) {
+    cartItems = cartItems.filter(i => i.batchId !== batchId);
+    renderCart();
+  }
+
+  function clearCart() {
+    cartItems = [];
+    renderCart();
+  }
+
+  function renderCart() {
+    const el      = document.getElementById("cartItems");
+    const totalEl = document.getElementById("cartTotal");
+    document.getElementById("saleError").classList.add("hidden");
+
+    const countBadge = document.getElementById("cartCount");
+    if (cartItems.length === 0) {
+      el.innerHTML = `<p class="text-sm text-textMuted dark:text-textMutedDark text-center py-6">No items added yet.</p>`;
+      totalEl.textContent = "LKR 0";
+      if (countBadge) { countBadge.classList.add("hidden"); }
+      return;
+    }
+    const totalQty = cartItems.reduce((s, i) => s + i.qty, 0);
+    if (countBadge) { countBadge.textContent = totalQty; countBadge.classList.remove("hidden"); }
+
+    el.innerHTML = cartItems.map(i => `
+      <div class="rounded-xl bg-white/60 dark:bg-white/5 border border-black/10 dark:border-borderDark px-3 py-2.5">
+        <div class="flex items-center justify-between gap-2">
+          <div class="min-w-0 flex-1">
+            <p class="font-extrabold text-textDark dark:text-white text-xs truncate">${esc(i.medName)}</p>
+            <p class="text-[10px] font-mono text-textMuted dark:text-textMutedDark">${esc(i.batchNumber)}</p>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <button onclick="changeQty('${i.batchId}',-1)" class="h-6 w-6 rounded-full bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark font-extrabold text-sm flex items-center justify-center leading-none">−</button>
+            <span class="text-xs font-extrabold text-textDark dark:text-white w-4 text-center">${i.qty}</span>
+            <button onclick="changeQty('${i.batchId}',1)" class="h-6 w-6 rounded-full bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark font-extrabold text-sm flex items-center justify-center leading-none">+</button>
+          </div>
+          <div class="text-right flex-shrink-0 min-w-[60px]">
+            <p class="font-black text-textDark dark:text-white text-xs">LKR ${(i.unitPrice * i.qty).toLocaleString()}</p>
+            <button onclick="removeFromCart('${i.batchId}')" class="text-brandRed font-extrabold text-[10px] hover:underline">Remove</button>
+          </div>
+        </div>
+      </div>`).join("");
+
+    const total = cartItems.reduce((s, i) => s + i.unitPrice * i.qty, 0);
+    totalEl.textContent = `LKR ${total.toLocaleString()}`;
+  }
+
+  // ── Complete Sale ──────────────────────────────────────────────────────────
+  async function completeSale() {
+    const errEl  = document.getElementById("saleError");
+    const errTxt = document.getElementById("saleErrorText");
+    errEl.classList.add("hidden");
+
+    if (cartItems.length === 0) {
+      errTxt.textContent = "Add at least one item to complete the sale.";
+      errEl.classList.remove("hidden");
+      return;
+    }
+
+    const btn = document.getElementById("completeSaleBtn");
+    btn.innerHTML = `<span class="material-symbols-outlined animate-spin">progress_activity</span> Processing…`;
+    btn.disabled  = true;
+
+    // Build payload:
+    // items: [{ batchId, medicineId, quantity, unitPrice }]
+    const payload = {
+      items: cartItems.map(i => ({
+        batchId:    i.batchId,
+        medicineId: i.medicineId,
+        quantity:   i.qty,
+        unitPrice:  i.unitPrice,
+      }))
+    };
+
+    const result = await apiFetch("/api/sales", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+
+    btn.innerHTML = `<span class="material-symbols-outlined">receipt</span>Complete Sale`;
+    btn.disabled  = false;
+
+    if (!result || result.error) {
+      errTxt.textContent = result?.error || "Sale failed. Please try again.";
+      errEl.classList.remove("hidden");
+      return;
+    }
+
+    // Show success modal
+    const total = cartItems.reduce((s, i) => s + i.unitPrice * i.qty, 0);
+    document.getElementById("successInvoice").textContent  = `Invoice: ${result.saleId || currentInvoiceId}`;
+    document.getElementById("successSummary").textContent  = `${cartItems.length} item(s) · LKR ${total.toLocaleString()}`;
+    document.getElementById("successModal").classList.remove("hidden");
+  }
+
+  function closeSuccessModal() {
+    document.getElementById("successModal").classList.add("hidden");
+    clearCart();
+    clearSelectedMedicine();
+    currentInvoiceId = generateInvoiceId();
+    document.getElementById("invoiceId").textContent = currentInvoiceId;
+    document.getElementById("invoiceIdRight").textContent = currentInvoiceId;
+  }
+
+  // ── Toast ──────────────────────────────────────────────────────────────────
+  function showToast(msg, type = "success") {
+    const t = document.createElement("div");
+    t.className = `fixed bottom-6 right-6 z-50 ${type === "error" ? "bg-brandRed" : "bg-brandBlue"} text-white px-5 py-3 rounded-2xl font-bold text-sm shadow-soft max-w-sm`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  function esc(str) { return String(str ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+  // ── Theme ──────────────────────────────────────────────────────────────────
+  function applyTheme(theme) {
+    ["themeIconTop","themeIconSide"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = theme === "dark" ? "light_mode" : "dark_mode"; });
+    theme === "dark" ? document.documentElement.classList.add("dark") : document.documentElement.classList.remove("dark");
+    localStorage.setItem("meditrace_theme", theme);
+  }
+  (function(){ const s = localStorage.getItem("meditrace_theme"); applyTheme(s || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")); })();
+  ["themeToggleTop","themeToggleSide"].forEach(id => { const b = document.getElementById(id); if (b) b.addEventListener("click", () => applyTheme(document.documentElement.classList.contains("dark") ? "light" : "dark")); });
+
+  // ── Sidebar active ─────────────────────────────────────────────────────────
+  (function(){ const active = document.body.getAttribute("data-page"); document.querySelectorAll(".navbtn").forEach(a => { const k = a.getAttribute("data-nav"); const i = a.querySelector(".navicon"); a.classList.remove("bg-brandBlue/10","dark:bg-brandBlue/15","border-black/5","dark:border-borderDark"); if (i) i.classList.remove("text-brandBlue"); if (k === active) { a.classList.add("bg-brandBlue/10","dark:bg-brandBlue/15","border-black/5","dark:border-borderDark"); if (i) { i.classList.remove("text-textMuted","dark:text-textMutedDark"); i.classList.add("text-brandBlue"); } } }); })();
+
+  (function(){ if (localStorage.getItem("meditrace_role") === "owner") { const el = document.getElementById("navUsersLink"); if (el) el.style.display = ""; } })();
+  init();
+</script>
+</body>
+</html>

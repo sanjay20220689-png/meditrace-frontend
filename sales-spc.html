@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>MediTrace - SPC Alternatives</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brandRed: "#cc0000", brandBlue: "#455b94",
+            pageBg: "#ffffff", cardBg: "#f3f4f6", panelBg: "#f7f8fa",
+            textDark: "#111418", textMuted: "#637588",
+            pageBgDark: "#0b1220", cardBgDark: "#0f1a2b", panelBgDark: "#0c1626",
+            textMutedDark: "#9fb0c8", borderDark: "#1f2c45",
+          },
+          fontFamily: { display: ["Public Sans", "sans-serif"] },
+          borderRadius: { xl: "1.25rem", "2xl": "1.5rem" },
+          boxShadow: { soft: "0 30px 80px rgba(17, 24, 39, 0.18)" },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { font-family: "Public Sans", sans-serif; }
+    .skeleton { animation: pulse 1.5s ease-in-out infinite; background: linear-gradient(90deg,rgba(0,0,0,0.06) 25%,rgba(0,0,0,0.1) 50%,rgba(0,0,0,0.06) 75%); background-size:200% 100%; }
+    .dark .skeleton { background: linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%); background-size:200% 100%; }
+    @keyframes pulse { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  </style>
+</head>
+
+<body class="min-h-screen bg-pageBg dark:bg-pageBgDark font-display">
+<main class="px-6 lg:px-10 py-8">
+  <div class="max-w-[1100px] mx-auto">
+
+    <!-- Header -->
+    <div class="rounded-[24px] bg-cardBg dark:bg-cardBgDark shadow-soft border border-black/5 dark:border-borderDark px-6 py-5 flex items-center justify-between gap-4 flex-wrap">
+      <div class="flex items-center gap-3">
+        <div class="h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center">
+          <span class="material-symbols-outlined text-brandBlue" style="font-variation-settings:'FILL' 1">swap_horiz</span>
+        </div>
+        <div>
+          <p class="text-xl font-black text-textDark dark:text-white">SPC Alternatives</p>
+          <p class="text-sm font-medium text-textMuted dark:text-textMutedDark">Cost-effective bio-equivalent substitutions</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="themeToggle" class="h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center hover:bg-white transition" aria-label="Toggle dark mode">
+          <span id="themeIcon" class="material-symbols-outlined text-textDark dark:text-white">dark_mode</span>
+        </button>
+        <a href="sales.html" class="h-11 px-5 rounded-full bg-brandRed text-white font-extrabold text-sm hover:bg-brandRed/90 transition">
+          ← Back to Sales
+        </a>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div id="loadingState" class="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-6 space-y-4">
+        <div class="skeleton h-5 w-32 rounded-full"></div>
+        <div class="skeleton h-8 w-72 rounded-full"></div>
+        <div class="skeleton h-4 w-48 rounded-full"></div>
+      </div>
+      <div class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-6 space-y-4">
+        <div class="skeleton h-5 w-24 rounded-full"></div>
+        <div class="skeleton h-24 w-full rounded-2xl"></div>
+      </div>
+    </div>
+
+    <!-- Content (shown after load) -->
+    <div id="content" class="hidden mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Selected medicine -->
+      <section class="lg:col-span-2 rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-6">
+        <p class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">Selected Medicine</p>
+        <p id="selName" class="text-2xl font-black text-textDark dark:text-white mt-2">—</p>
+        <p id="selMeta" class="text-sm font-medium text-textMuted dark:text-textMutedDark mt-1">—</p>
+
+        <!-- Price breakdown -->
+        <div class="mt-5 grid grid-cols-2 gap-4">
+          <div class="rounded-2xl bg-white/60 dark:bg-white/5 border border-black/10 dark:border-borderDark p-4">
+            <p class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">Selling Price</p>
+            <p id="selSellingPrice" class="text-2xl font-black text-textDark dark:text-white mt-1">—</p>
+            <p class="text-xs text-textMuted dark:text-textMutedDark mt-1">Per unit (LKR)</p>
+          </div>
+          <div class="rounded-2xl bg-white/60 dark:bg-white/5 border border-black/10 dark:border-borderDark p-4">
+            <p class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">Generic Name</p>
+            <p id="selGeneric" class="text-lg font-black text-textDark dark:text-white mt-1 leading-tight">—</p>
+            <p class="text-xs text-textMuted dark:text-textMutedDark mt-1">Active ingredient</p>
+          </div>
+        </div>
+
+        <div class="mt-4 rounded-2xl bg-brandBlue/5 dark:bg-brandBlue/10 border border-brandBlue/20 p-4">
+          <div class="flex items-start gap-2">
+            <span class="material-symbols-outlined text-brandBlue text-base mt-0.5">policy</span>
+            <div>
+              <p class="text-sm font-extrabold text-brandBlue">SPC Substitution Policy</p>
+              <p class="text-sm text-brandBlue/80 mt-1">
+                Substitution is allowed when dosage and strength are identical and the patient has been informed. All SPC alternatives are bio-equivalent under NMRA guidance.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- All SPC alternatives for this generic -->
+        <div id="allAltsSection" class="hidden mt-5">
+          <p class="text-sm font-extrabold text-textDark dark:text-white mb-3">All alternatives with this active ingredient:</p>
+          <div id="allAltsList" class="space-y-2"></div>
+        </div>
+      </section>
+
+      <!-- Best alternative panel -->
+      <aside class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft overflow-hidden">
+        <div class="p-6 border-b border-black/5 dark:border-borderDark">
+          <p class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">Best Alternative</p>
+          <p class="text-lg font-black text-textDark dark:text-white mt-1">Cheapest SPC option</p>
+        </div>
+        <div class="p-6">
+
+          <!-- Has alternative -->
+          <div id="altBox" class="hidden rounded-2xl border-2 border-amber-200 dark:border-amber-500/25 bg-amber-50/80 dark:bg-amber-900/10 p-5">
+            <div class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-amber-600 mt-0.5">info</span>
+              <div class="flex-1">
+                <p class="text-sm font-black text-amber-900 dark:text-amber-200" id="altName">—</p>
+                <p class="text-xs text-amber-700 dark:text-amber-300 mt-1" id="altMeta">—</p>
+                <div class="mt-3 rounded-xl bg-white/70 dark:bg-white/5 border border-amber-200/70 dark:border-amber-500/20 p-3">
+                  <div class="flex items-center justify-between">
+                    <p class="text-xs font-extrabold text-amber-800 dark:text-amber-200 uppercase">Patient saves</p>
+                    <p id="altSave" class="text-sm font-black text-green-600">—</p>
+                  </div>
+                  <p class="text-xs text-amber-800/90 dark:text-amber-200/90 mt-1">
+                    Original: <span class="font-extrabold" id="pOrig">—</span> · Alt: <span class="font-extrabold" id="pAlt">—</span>
+                  </p>
+                </div>
+                <button onclick="applyAndGoBack()" class="mt-4 w-full h-11 rounded-full bg-amber-600 text-white font-extrabold text-sm hover:bg-amber-700 transition">
+                  Apply & Return to Sales
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- No alternative -->
+          <div id="noAlt" class="hidden rounded-2xl bg-white/60 dark:bg-white/5 border border-black/10 dark:border-borderDark p-5">
+            <p class="text-sm font-extrabold text-textDark dark:text-white">No SPC alternative found</p>
+            <p class="text-sm text-textMuted dark:text-textMutedDark mt-2">
+              There is no cheaper bio-equivalent substitute for this medication in your current inventory.
+            </p>
+            <a href="sales.html" class="mt-4 flex items-center justify-center h-10 w-full rounded-full border border-black/10 dark:border-borderDark text-textDark dark:text-white font-extrabold text-sm hover:bg-white dark:hover:bg-white/10 transition">
+              Return to Sales
+            </a>
+          </div>
+
+          <!-- Error / no med -->
+          <div id="errorBox" class="hidden rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 p-5">
+            <p class="text-sm font-extrabold text-brandRed">Medication not found</p>
+            <p class="text-sm text-textMuted dark:text-textMutedDark mt-2" id="errorText">—</p>
+            <a href="sales.html" class="mt-4 flex items-center justify-center h-10 w-full rounded-full bg-brandRed text-white font-extrabold text-sm hover:bg-brandRed/90 transition">
+              Return to Sales
+            </a>
+          </div>
+
+        </div>
+      </aside>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  const BASE_URL = "http://localhost:5000";
+
+  // Auth guard
+  const token  = localStorage.getItem("meditrace_token");
+  const expiry = localStorage.getItem("meditrace_token_expiry");
+  if (!token || !expiry || Date.now() > parseInt(expiry)) { localStorage.clear(); window.location.href = "index.html"; }
+
+  // Theme
+  function applyTheme(theme) {
+    const icon = document.getElementById("themeIcon");
+    if (icon) icon.textContent = theme === "dark" ? "light_mode" : "dark_mode";
+    theme === "dark" ? document.documentElement.classList.add("dark") : document.documentElement.classList.remove("dark");
+    localStorage.setItem("meditrace_theme", theme);
+  }
+  (function(){ const s = localStorage.getItem("meditrace_theme"); applyTheme(s || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")); })();
+  document.getElementById("themeToggle").addEventListener("click", () => applyTheme(document.documentElement.classList.contains("dark") ? "light" : "dark"));
+
+  async function apiFetch(endpoint) {
+    const res = await fetch(`${BASE_URL}${endpoint}`, {
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
+    });
+    if (res.status === 401) { localStorage.clear(); window.location.href = "index.html"; return null; }
+    return res.json();
+  }
+
+  function esc(str) { return String(str ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  let selectedMed = null;
+  let bestAlt     = null;
+
+  // ── Boot ───────────────────────────────────────────────────────────────────
+  async function init() {
+    const params   = new URLSearchParams(window.location.search);
+    const medId    = params.get("med");
+
+    // Load all medications
+    const medsData = await apiFetch("/api/medications");
+    const allMeds  = medsData || [];
+
+    document.getElementById("loadingState").classList.add("hidden");
+    document.getElementById("content").classList.remove("hidden");
+
+    if (!medId) {
+      // No med in URL — show generic SPC explorer
+      showError("No medication specified. Navigate here from the Sales page by selecting a medication.");
+      return;
+    }
+
+    selectedMed = allMeds.find(m => m.medicineId === medId);
+    if (!selectedMed) {
+      showError(`Medication ID "${esc(medId)}" not found in your inventory.`);
+      return;
+    }
+
+    // Populate selected med info
+    document.getElementById("selName").textContent         = selectedMed.name;
+    document.getElementById("selMeta").textContent         = `${selectedMed.genericName || "—"} · ${selectedMed.strength || "—"}`;
+    document.getElementById("selSellingPrice").textContent  = selectedMed.sellingPrice != null ? `LKR ${selectedMed.sellingPrice}` : "—";
+    document.getElementById("selGeneric").textContent       = selectedMed.genericName || "—";
+
+    // Find all SPC alternatives: different medication, same genericName, isSPC = true, cheaper
+    const alternatives = allMeds.filter(m =>
+      m.medicineId !== selectedMed.medicineId &&
+      m.isSPC === true &&
+      (m.genericName || "").toLowerCase() === (selectedMed.genericName || "").toLowerCase() &&
+      m.sellingPrice != null &&
+      selectedMed.sellingPrice != null
+    ).sort((a, b) => a.sellingPrice - b.sellingPrice);
+
+    if (alternatives.length === 0 || !selectedMed.sellingPrice) {
+      document.getElementById("noAlt").classList.remove("hidden");
+      return;
+    }
+
+    bestAlt = alternatives[0];
+    const savings = selectedMed.sellingPrice - bestAlt.sellingPrice;
+
+    // Show best alternative panel
+    document.getElementById("altBox").classList.remove("hidden");
+    document.getElementById("altName").textContent = bestAlt.name;
+    document.getElementById("altMeta").textContent = `${bestAlt.genericName} · ${bestAlt.strength} · Bio-equivalent SPC`;
+    document.getElementById("pOrig").textContent   = `LKR ${selectedMed.sellingPrice}`;
+    document.getElementById("pAlt").textContent    = `LKR ${bestAlt.sellingPrice}`;
+    document.getElementById("altSave").textContent = savings > 0 ? `LKR ${savings} per unit` : "Same price";
+
+    // If multiple alternatives exist, show them all
+    if (alternatives.length > 1) {
+      document.getElementById("allAltsSection").classList.remove("hidden");
+      document.getElementById("allAltsList").innerHTML = alternatives.map(alt => {
+        const s = (selectedMed.sellingPrice - alt.sellingPrice);
+        const isBest = alt.medicineId === bestAlt.medicineId;
+        return `
+          <div class="rounded-2xl bg-white/60 dark:bg-white/5 border ${isBest ? "border-amber-300 dark:border-amber-500/40" : "border-black/10 dark:border-borderDark"} p-4 flex items-center justify-between gap-4">
+            <div>
+              <p class="text-sm font-extrabold text-textDark dark:text-white">${esc(alt.name)} ${isBest ? '<span class="text-[10px] bg-amber-500/10 text-amber-700 dark:text-amber-300 px-1.5 py-0.5 rounded-full font-extrabold">Best</span>' : ""}</p>
+              <p class="text-xs text-textMuted dark:text-textMutedDark mt-0.5">${esc(alt.genericName)} · ${esc(alt.strength)}</p>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <p class="text-sm font-black text-textDark dark:text-white">LKR ${alt.sellingPrice}</p>
+              <p class="text-xs ${s > 0 ? "text-green-600 font-extrabold" : "text-textMuted dark:text-textMutedDark"} mt-0.5">${s > 0 ? `saves LKR ${s}` : "same price"}</p>
+            </div>
+          </div>`;
+      }).join("");
+    }
+  }
+
+  function showError(msg) {
+    document.getElementById("errorText").textContent = msg;
+    document.getElementById("errorBox").classList.remove("hidden");
+    document.getElementById("selName").textContent = "Unknown medication";
+    document.getElementById("selMeta").textContent = msg;
+  }
+
+  function applyAndGoBack() {
+    if (!bestAlt) return;
+    // Pass the chosen alternative back to sales.html via URL param
+    // sales.html will auto-select it if ?selectMed= is present
+    window.location.href = `sales.html?selectMed=${bestAlt.medicineId}`;
+  }
+
+  init();
+</script>
+</body>
+</html>

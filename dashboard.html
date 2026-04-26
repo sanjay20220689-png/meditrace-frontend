@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>MediTrace - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brandRed: "#cc0000", brandBlue: "#455b94",
+            pageBg: "#ffffff", cardBg: "#f3f4f6", panelBg: "#f7f8fa",
+            textDark: "#111418", textMuted: "#637588",
+            pageBgDark: "#0b1220", cardBgDark: "#0f1a2b", panelBgDark: "#0c1626",
+            textMutedDark: "#9fb0c8", borderDark: "#1f2c45",
+          },
+          fontFamily: { display: ["Public Sans", "sans-serif"] },
+          borderRadius: { xl: "1.25rem", "2xl": "1.5rem" },
+          boxShadow: { soft: "0 30px 80px rgba(17, 24, 39, 0.18)" },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { font-family: "Public Sans", sans-serif; }
+    .skeleton { animation: pulse 1.5s ease-in-out infinite; background: linear-gradient(90deg,rgba(0,0,0,0.06) 25%,rgba(0,0,0,0.1) 50%,rgba(0,0,0,0.06) 75%); background-size:200% 100%; }
+    .dark .skeleton { background: linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%); background-size:200% 100%; }
+    @keyframes pulse { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .acc-body { display:none; }
+    .acc-body.open { display:block; }
+    .acc-chevron { transition: transform 0.2s; }
+    .acc-chevron.open { transform: rotate(180deg); }
+  </style>
+</head>
+<body data-page="dashboard" class="min-h-screen bg-pageBg dark:bg-pageBgDark font-display">
+<div class="min-h-screen flex">
+
+  <!-- Sidebar -->
+  <aside class="hidden lg:flex w-[92px] p-4">
+    <div class="w-full rounded-[24px] bg-cardBg dark:bg-cardBgDark shadow-soft border border-black/5 dark:border-borderDark flex flex-col items-center py-4 gap-4">
+      <a href="dashboard.html" class="group relative h-12 w-12 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center">
+        <span class="material-symbols-outlined text-brandRed text-2xl" style="font-variation-settings:'FILL' 1">medical_services</span>
+        <span class="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Dashboard</span>
+      </a>
+      <div class="h-px w-10 bg-black/10 dark:bg-borderDark my-1"></div>
+      <nav class="flex flex-col items-center gap-2">
+        <a href="dashboard.html" data-nav="dashboard" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">home</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Dashboard</span>
+        </a>
+        <a href="sales.html" data-nav="sales" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">point_of_sale</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Sales (FEFO)</span>
+        </a>
+        <a href="inventory.html" data-nav="inventory" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">inventory_2</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Inventory</span>
+        </a>
+        <a href="expiry-alerts.html" data-nav="expiry" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">warning</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Expiry Alerts</span>
+        </a>
+        <a href="nmra-reports.html" data-nav="nmra" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">description</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">NMRA Reports</span>
+        </a>
+        <a href="forecasting.html" data-nav="forecast" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">analytics</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Forecasting</span>
+        </a>
+        <a href="users.html" data-nav="users" id="navUsersLink" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10" style="display:none">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">manage_accounts</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">User Management</span>
+        </a>
+        <a href="account.html" data-nav="account" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">account_circle</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">My Account</span>
+        </a>
+      </nav>
+      <div class="mt-auto flex flex-col items-center gap-2">
+        <button id="themeToggleSide" class="group relative h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center hover:bg-white transition">
+          <span id="themeIconSide" class="material-symbols-outlined text-textDark dark:text-white">dark_mode</span>
+          <span class="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Toggle theme</span>
+        </button>
+        
+        <button onclick="logout()" class="group relative h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center hover:bg-white transition">
+          <span class="material-symbols-outlined text-textDark dark:text-white">logout</span>
+          <span class="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Logout</span>
+        </button>
+        <!-- <button id="themeToggleSide" class="group relative h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center hover:bg-white transition">
+          <span id="themeIconSide" class="material-symbols-outlined text-textDark dark:text-white">dark_mode</span>
+          <span class="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Toggle theme</span>
+        </button> -->
+      </div>
+    </div>
+  </aside>
+
+  <div class="flex-1">
+    <header class="sticky top-0 z-40 px-6 lg:px-10 py-4">
+      <div class="rounded-[24px] bg-cardBg dark:bg-cardBgDark shadow-soft border border-black/5 dark:border-borderDark px-5 py-4">
+        <div class="flex items-center justify-between gap-4">
+          <a href="dashboard.html" class="flex items-center gap-3">
+            <div class="h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center">
+              <span class="material-symbols-outlined text-brandRed text-2xl" style="font-variation-settings:'FILL' 1">medical_services</span>
+            </div>
+            <div class="hidden sm:block">
+              <p class="text-textDark dark:text-white font-black leading-tight">MediTrace</p>
+              <p class="text-[11px] text-textMuted dark:text-textMutedDark -mt-0.5">Dashboard</p>
+            </div>
+          </a>
+          <div class="flex items-center gap-3">
+            <div class="hidden sm:flex items-center gap-2 rounded-full border border-black/10 dark:border-borderDark bg-white/70 dark:bg-white/10 px-4 py-2">
+              <span class="material-symbols-outlined text-brandBlue text-base">person</span>
+              <span id="userEmailDisplay" class="text-sm font-bold text-textDark dark:text-white">Loading…</span>
+              <span id="userRoleBadge" class="text-[10px] font-extrabold uppercase text-white bg-brandBlue px-2 py-0.5 rounded-full">--</span>
+            </div>
+            <button id="themeToggleTop" class=" h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center hover:bg-white transition">
+              <span id="themeIconTop" class="material-symbols-outlined text-textDark dark:text-white">dark_mode</span>
+            </button>
+            <button onclick="logout()" class="h-11 px-5 rounded-full bg-brandRed text-white font-extrabold text-sm hover:bg-brandRed/90 transition">Logout</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="px-6 lg:px-10 pb-10">
+      <div class="max-w-[1200px] mx-auto">
+
+        <!-- Title -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mt-2">
+          <h1 class="text-2xl font-black text-textDark dark:text-white">Dashboard</h1>
+          <div class="flex items-center gap-2">
+            <a href="sales.html" class="h-10 px-4 rounded-full bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark text-textDark dark:text-white font-bold text-sm hover:bg-white transition flex items-center gap-2">
+              <span class="material-symbols-outlined text-brandBlue text-base">point_of_sale</span>New Sale
+            </a>
+            <a href="inventory.html" class="h-10 px-4 rounded-full bg-brandBlue text-white font-extrabold text-sm hover:bg-brandBlue/90 transition flex items-center gap-2">
+              <span class="material-symbols-outlined text-base">add</span>Add Batch
+            </a>
+          </div>
+        </div>
+
+        <!-- KPI strip -->
+        <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+          <div class="rounded-[20px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft px-5 py-4 flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-brandBlue/10 dark:bg-brandBlue/20 grid place-items-center flex-shrink-0"><span class="material-symbols-outlined text-brandBlue text-lg">medication</span></div>
+            <div><p id="kpiTotalMeds" class="text-2xl font-black text-textDark dark:text-white">--</p><p class="text-xs text-textMuted dark:text-textMutedDark">Medications</p></div>
+          </div>
+          <div class="rounded-[20px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft px-5 py-4 flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-amber-500/10 grid place-items-center flex-shrink-0"><span class="material-symbols-outlined text-amber-500 text-lg">schedule</span></div>
+            <div><p id="kpiNearExpiry" class="text-2xl font-black text-textDark dark:text-white">--</p><p class="text-xs text-textMuted dark:text-textMutedDark">Near Expiry</p></div>
+          </div>
+          <div class="rounded-[20px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft px-5 py-4 flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-brandRed/10 grid place-items-center flex-shrink-0"><span class="material-symbols-outlined text-brandRed text-lg">event_busy</span></div>
+            <div><p id="kpiExpired" class="text-2xl font-black text-brandRed">--</p><p class="text-xs text-textMuted dark:text-textMutedDark">Expired</p></div>
+          </div>
+          <div class="rounded-[20px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft px-5 py-4 flex items-center gap-3">
+            <div class="h-10 w-10 rounded-xl bg-green-500/10 grid place-items-center flex-shrink-0"><span class="material-symbols-outlined text-green-500 text-lg">verified</span></div>
+            <div><p class="text-2xl font-black text-green-500">ON</p><p class="text-xs text-textMuted dark:text-textMutedDark">FEFO Active</p></div>
+          </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5">
+
+          <!-- LEFT -->
+          <div class="lg:col-span-2 space-y-5">
+
+            <!-- Recent Activity FIRST -->
+            <section class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft overflow-hidden">
+              <div class="px-6 py-4 border-b border-black/5 dark:border-borderDark flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-brandBlue text-base">history</span>
+                  <h2 class="font-black text-textDark dark:text-white">Recent Activity</h2>
+                </div>
+                <a href="nmra-reports.html" class="text-xs font-extrabold text-brandBlue hover:underline">View all</a>
+              </div>
+              <div id="activityList" class="divide-y divide-black/5 dark:divide-borderDark">
+                <div class="px-6 py-3"><div class="skeleton h-10 rounded-xl"></div></div>
+                <div class="px-6 py-3"><div class="skeleton h-10 rounded-xl"></div></div>
+                <div class="px-6 py-3"><div class="skeleton h-10 rounded-xl"></div></div>
+              </div>
+            </section>
+
+            <!-- Stock Overview -->
+            <section class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft overflow-hidden">
+              <div class="px-6 py-4 border-b border-black/5 dark:border-borderDark flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-brandBlue text-base">inventory_2</span>
+                  <h2 class="font-black text-textDark dark:text-white">Stock Overview</h2>
+                </div>
+                <a href="inventory.html" class="text-xs font-extrabold text-brandBlue hover:underline">Manage →</a>
+              </div>
+              <div class="px-6 py-4">
+                <div class="grid grid-cols-3 gap-3 mb-4">
+                  <div class="rounded-2xl bg-green-50 dark:bg-green-950/20 border border-green-200/60 dark:border-green-900/30 p-3 text-center">
+                    <p id="kpiInStock" class="text-xl font-black text-green-700 dark:text-green-400">--</p>
+                    <p class="text-[11px] font-bold text-green-600 dark:text-green-500 mt-0.5">In Stock</p>
+                  </div>
+                  <div class="rounded-2xl bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200/60 dark:border-yellow-900/30 p-3 text-center">
+                    <p id="kpiLowStock" class="text-xl font-black text-yellow-700 dark:text-yellow-400">--</p>
+                    <p class="text-[11px] font-bold text-yellow-600 dark:text-yellow-500 mt-0.5">Low Stock</p>
+                  </div>
+                  <div class="rounded-2xl bg-red-50 dark:bg-red-950/20 border border-red-200/60 dark:border-red-900/30 p-3 text-center">
+                    <p id="kpiOutOfStock" class="text-xl font-black text-red-700 dark:text-red-400">--</p>
+                    <p class="text-[11px] font-bold text-red-600 dark:text-red-500 mt-0.5">Out of Stock</p>
+                  </div>
+                </div>
+                <div id="inventoryList" class="space-y-2">
+                  <div class="skeleton h-11 rounded-xl"></div>
+                  <div class="skeleton h-11 rounded-xl"></div>
+                  <div class="skeleton h-11 rounded-xl"></div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Quick nav icon grid -->
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
+              <a href="sales.html" class="rounded-[20px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-4 flex flex-col items-center gap-2 hover:scale-[1.02] transition">
+                <div class="h-11 w-11 rounded-2xl bg-brandRed/10 grid place-items-center"><span class="material-symbols-outlined text-brandRed text-2xl">point_of_sale</span></div>
+                <p class="text-xs font-extrabold text-textDark dark:text-white">Sales</p>
+              </a>
+              <a href="inventory.html" class="rounded-[20px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-4 flex flex-col items-center gap-2 hover:scale-[1.02] transition">
+                <div class="h-11 w-11 rounded-2xl bg-brandBlue/10 grid place-items-center"><span class="material-symbols-outlined text-brandBlue text-2xl">inventory_2</span></div>
+                <p class="text-xs font-extrabold text-textDark dark:text-white">Inventory</p>
+              </a>
+              <a href="expiry-alerts.html" class="rounded-[20px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-4 flex flex-col items-center gap-2 hover:scale-[1.02] transition">
+                <div class="h-11 w-11 rounded-2xl bg-amber-500/10 grid place-items-center"><span class="material-symbols-outlined text-amber-500 text-2xl">warning</span></div>
+                <p class="text-xs font-extrabold text-textDark dark:text-white">Expiry</p>
+              </a>
+              <a href="nmra-reports.html" class="rounded-[20px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-4 flex flex-col items-center gap-2 hover:scale-[1.02] transition">
+                <div class="h-11 w-11 rounded-2xl bg-brandBlue/10 grid place-items-center"><span class="material-symbols-outlined text-brandBlue text-2xl">description</span></div>
+                <p class="text-xs font-extrabold text-textDark dark:text-white">NMRA</p>
+              </a>
+              <a href="forecasting.html" class="rounded-[20px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-4 flex flex-col items-center gap-2 hover:scale-[1.02] transition">
+                <div class="h-11 w-11 rounded-2xl bg-brandBlue/10 grid place-items-center"><span class="material-symbols-outlined text-brandBlue text-2xl">analytics</span></div>
+                <p class="text-xs font-extrabold text-textDark dark:text-white">Forecast</p>
+              </a>
+              <!-- <a href="sales-spc.html" class="rounded-[20px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-4 flex flex-col items-center gap-2 hover:scale-[1.02] transition">
+                <div class="h-11 w-11 rounded-2xl bg-amber-500/10 grid place-items-center"><span class="material-symbols-outlined text-amber-500 text-2xl">swap_horiz</span></div>
+                <p class="text-xs font-extrabold text-textDark dark:text-white">SPC</p>
+              </a> -->
+            </div>
+
+          </div>
+
+          <!-- RIGHT — accordion panels -->
+          <aside class="space-y-3">
+
+            <!-- User -->
+            <div class="rounded-[20px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft overflow-hidden">
+              <button onclick="toggleAcc('acc-user')" class="w-full px-5 py-4 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="h-9 w-9 rounded-xl bg-brandBlue/10 dark:bg-brandBlue/20 grid place-items-center flex-shrink-0"><span class="material-symbols-outlined text-brandBlue text-lg">person</span></div>
+                  <div class="text-left min-w-0">
+                    <p id="userCardEmail" class="text-sm font-black text-textDark dark:text-white truncate max-w-[140px]">Loading…</p>
+                    <p id="userCardRole" class="text-[11px] font-bold text-textMuted dark:text-textMutedDark capitalize">--</p>
+                  </div>
+                </div>
+                <span class="material-symbols-outlined text-textMuted dark:text-textMutedDark acc-chevron open flex-shrink-0" id="chev-acc-user">expand_more</span>
+              </button>
+              <div class="acc-body open" id="acc-user">
+                <div class="px-5 pb-4 pt-3 border-t border-black/5 dark:border-borderDark grid grid-cols-2 gap-2">
+                  <a href="expiry-alerts.html" class="rounded-xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark p-3 text-center hover:bg-white transition">
+                    <p id="profileAlertsCount" class="text-xl font-black text-textDark dark:text-white">--</p>
+                    <p class="text-[11px] text-textMuted dark:text-textMutedDark mt-0.5">Alerts</p>
+                  </a>
+                  <div class="rounded-xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark p-3 text-center">
+                    <p class="text-xl font-black text-green-500">ON</p>
+                    <p class="text-[11px] text-textMuted dark:text-textMutedDark mt-0.5">FEFO</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Expiry Alerts -->
+            <div class="rounded-[20px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft overflow-hidden">
+              <button onclick="toggleAcc('acc-expiry')" class="w-full px-5 py-4 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="h-9 w-9 rounded-xl bg-brandRed/10 grid place-items-center flex-shrink-0"><span class="material-symbols-outlined text-brandRed text-lg">warning</span></div>
+                  <div class="text-left">
+                    <p class="text-sm font-black text-textDark dark:text-white">Expiry Alerts</p>
+                    <p id="expirySummaryText" class="text-[11px] text-textMuted dark:text-textMutedDark">Loading…</p>
+                  </div>
+                </div>
+                <span class="material-symbols-outlined text-textMuted dark:text-textMutedDark acc-chevron flex-shrink-0" id="chev-acc-expiry">expand_more</span>
+              </button>
+              <div class="acc-body" id="acc-expiry">
+                <div class="px-5 pb-4 pt-3 border-t border-black/5 dark:border-borderDark space-y-2">
+                  <div class="flex items-center justify-between rounded-xl bg-amber-50/80 dark:bg-amber-900/10 border border-amber-200/60 dark:border-amber-800/20 px-4 py-3">
+                    <p class="text-sm font-extrabold text-amber-800 dark:text-amber-200">Near expiry</p>
+                    <p id="kpiNearExpiryRight" class="text-lg font-black text-amber-600 dark:text-amber-400">--</p>
+                  </div>
+                  <div class="flex items-center justify-between rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-200/60 dark:border-red-900/30 px-4 py-3">
+                    <p class="text-sm font-extrabold text-red-700 dark:text-red-400">Expired</p>
+                    <p id="kpiExpiredRight" class="text-lg font-black text-brandRed">--</p>
+                  </div>
+                  <a href="expiry-alerts.html" class="flex items-center justify-center h-9 w-full rounded-xl bg-brandRed text-white font-extrabold text-xs hover:bg-brandRed/90 transition gap-1">
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>View Alerts
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Restock -->
+            <div class="rounded-[20px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft overflow-hidden">
+              <button onclick="toggleAcc('acc-restock')" class="w-full px-5 py-4 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="h-9 w-9 rounded-xl bg-brandBlue/10 dark:bg-brandBlue/20 grid place-items-center flex-shrink-0"><span class="material-symbols-outlined text-brandBlue text-lg">local_shipping</span></div>
+                  <div class="text-left">
+                    <p class="text-sm font-black text-textDark dark:text-white">Restock Needed</p>
+                    <p id="restockSubtitle" class="text-[11px] text-textMuted dark:text-textMutedDark">Loading…</p>
+                  </div>
+                </div>
+                <span class="material-symbols-outlined text-textMuted dark:text-textMutedDark acc-chevron flex-shrink-0" id="chev-acc-restock">expand_more</span>
+              </button>
+              <div class="acc-body" id="acc-restock">
+                <div class="border-t border-black/5 dark:divide-borderDark">
+                  <div id="restockList" class="divide-y divide-black/5 dark:divide-borderDark">
+                    <div class="px-5 py-3"><div class="skeleton h-9 rounded-xl"></div></div>
+                    <div class="px-5 py-3"><div class="skeleton h-9 rounded-xl"></div></div>
+                  </div>
+                  <div class="px-5 py-3">
+                    <a href="forecasting.html" class="flex items-center justify-center h-9 w-full rounded-xl bg-brandBlue text-white font-extrabold text-xs hover:bg-brandBlue/90 transition gap-1">
+                      <span class="material-symbols-outlined text-sm">analytics</span>Full Forecast
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tasks -->
+            <div class="rounded-[20px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft overflow-hidden">
+              <button onclick="toggleAcc('acc-tasks')" class="w-full px-5 py-4 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                  <div class="h-9 w-9 rounded-xl bg-brandBlue/10 dark:bg-brandBlue/20 grid place-items-center flex-shrink-0"><span class="material-symbols-outlined text-brandBlue text-lg">checklist</span></div>
+                  <div class="text-left">
+                    <p class="text-sm font-black text-textDark dark:text-white">Today's Tasks</p>
+                    <p class="text-[11px] text-textMuted dark:text-textMutedDark">3 action items</p>
+                  </div>
+                </div>
+                <span class="material-symbols-outlined text-textMuted dark:text-textMutedDark acc-chevron flex-shrink-0" id="chev-acc-tasks">expand_more</span>
+              </button>
+              <div class="acc-body" id="acc-tasks">
+                <div class="px-5 pb-4 pt-3 border-t border-black/5 dark:border-borderDark space-y-2">
+                  <div class="flex items-center gap-3 rounded-xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark px-4 py-3">
+                    <span class="material-symbols-outlined text-brandRed text-base flex-shrink-0">event_busy</span>
+                    <div class="min-w-0">
+                      <p class="text-xs font-extrabold text-textDark dark:text-white">Handle expired stock</p>
+                      <p id="taskExpiredText" class="text-[11px] text-textMuted dark:text-textMutedDark truncate">Loading…</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3 rounded-xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark px-4 py-3">
+                    <span class="material-symbols-outlined text-brandBlue text-base flex-shrink-0">inventory_2</span>
+                    <div>
+                      <p class="text-xs font-extrabold text-textDark dark:text-white">Add new batch</p>
+                      <p class="text-[11px] text-textMuted dark:text-textMutedDark">Update supplier records</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3 rounded-xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark px-4 py-3">
+                    <span class="material-symbols-outlined text-brandBlue text-base flex-shrink-0">analytics</span>
+                    <div>
+                      <p class="text-xs font-extrabold text-textDark dark:text-white">Review restock</p>
+                      <p class="text-[11px] text-textMuted dark:text-textMutedDark">Check velocity alerts</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </aside>
+        </div>
+
+        <footer class="mt-6 pb-8 text-xs text-textMuted dark:text-textMutedDark">
+          <div class="rounded-[24px] bg-cardBg dark:bg-cardBgDark border border-black/5 dark:border-borderDark shadow-soft px-5 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2"><span class="h-2 w-2 bg-green-500 rounded-full"></span><span class="font-semibold">System status: Connected</span></div>
+            <span class="font-semibold">v1.0.0 | © 2026 MediTrace Systems</span>
+          </div>
+        </footer>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  const BASE_URL = "http://localhost:5000";
+  const token  = localStorage.getItem("meditrace_token");
+  const expiry = localStorage.getItem("meditrace_token_expiry");
+  if (!token || !expiry || Date.now() > parseInt(expiry)) { localStorage.clear(); window.location.href = "index.html"; }
+  function logout() { localStorage.clear(); window.location.href = "index.html"; }
+
+  async function apiFetch(ep) {
+    const res = await fetch(`${BASE_URL}${ep}`, { headers: { "Content-Type":"application/json","Authorization":`Bearer ${token}` } });
+    if (res.status === 401) { logout(); return null; }
+    return res.json();
+  }
+
+  function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+  function esc(s) { return String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  function timeAgo(iso) {
+    const m = Math.floor((Date.now() - new Date(iso)) / 60000);
+    if (m < 1) return "Just now";
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    return `${Math.floor(h/24)}d ago`;
+  }
+
+  function toggleAcc(id) {
+    const body = document.getElementById(id);
+    const chev = document.getElementById(`chev-${id}`);
+    const open = body.classList.toggle("open");
+    chev.classList.toggle("open", open);
+  }
+
+  function loadUserInfo() {
+    const email = localStorage.getItem("meditrace_email") || "Unknown";
+    const uid   = localStorage.getItem("meditrace_uid")   || "";
+    setText("userEmailDisplay", email);
+    setText("userCardEmail",    email);
+    apiFetch("/api/users").then(users => {
+      if (!users) return;
+      const me = Array.isArray(users) ? users.find(u => u.userId === uid) : null;
+      if (me) { setText("userRoleBadge", me.role); setText("userCardRole", me.role); }
+    }).catch(() => {});
+  }
+
+  async function loadInventory() {
+    const data = await apiFetch("/api/inventory");
+    if (!data) return;
+    const { summary, inventory } = data;
+    setText("kpiTotalMeds",  summary?.totalMedications ?? "--");
+    setText("kpiInStock",    summary?.inStock    ?? "--");
+    setText("kpiLowStock",   summary?.lowStock   ?? "--");
+    setText("kpiOutOfStock", summary?.outOfStock ?? "--");
+    const list = document.getElementById("inventoryList");
+    if (!inventory?.length) { list.innerHTML = `<p class="text-sm text-textMuted dark:text-textMutedDark text-center py-3">No inventory data yet.</p>`; return; }
+    list.innerHTML = inventory.slice(0,5).map(item => {
+      const sc = item.stockStatus==="IN_STOCK" ? "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/20" : item.stockStatus==="LOW_STOCK" ? "text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-950/20" : "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20";
+      return `<div class="flex items-center justify-between rounded-xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark px-4 py-2.5">
+        <div class="min-w-0"><p class="font-bold text-textDark dark:text-white text-sm truncate">${esc(item.name)}</p><p class="text-[11px] text-textMuted dark:text-textMutedDark">${esc(item.genericName)} · ${item.totalStock} units</p></div>
+        <span class="text-[10px] font-extrabold px-2.5 py-1 rounded-full flex-shrink-0 ml-2 ${sc}">${item.stockStatus.replace("_"," ")}</span>
+      </div>`;
+    }).join("");
+  }
+
+  async function loadExpiryData() {
+    const [near, exp] = await Promise.all([apiFetch("/api/batches/near-expiry?days=90"), apiFetch("/api/batches/expired")]);
+    const n = near?.length ?? 0, e = exp?.length ?? 0;
+    setText("kpiNearExpiry",      n);
+    setText("kpiExpired",         e);
+    setText("kpiNearExpiryRight", n);
+    setText("kpiExpiredRight",    e);
+    setText("profileAlertsCount", n + e);
+    setText("expirySummaryText",  `${n} near-expiry · ${e} expired`);
+    setText("taskExpiredText",    `${e} batch${e!==1?"es":""} need disposal`);
+  }
+
+  async function loadActivity() {
+    const list = document.getElementById("activityList");
+    const data = await apiFetch("/api/audit");
+    if (!data?.length) { list.innerHTML = `<div class="px-6 py-6 text-center"><p class="text-sm text-textMuted dark:text-textMutedDark">No recent activity.</p></div>`; return; }
+    const ICONS = { CREATE:"inventory_2", UPDATE:"edit", SALE:"point_of_sale", WRITE_OFF:"delete", DEFAULT:"info" };
+    list.innerHTML = data.slice(0,5).map(log => {
+      const icon = ICONS[log.actionType] || ICONS.DEFAULT;
+      const red  = ["SALE","WRITE_OFF","DEACTIVATE"].includes(log.actionType);
+      const ic   = red ? "bg-brandRed/10 dark:bg-brandRed/15 text-brandRed" : "bg-brandBlue/10 dark:bg-brandBlue/15 text-brandBlue";
+      return `<div class="px-5 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="h-8 w-8 rounded-xl ${ic} grid place-items-center flex-shrink-0"><span class="material-symbols-outlined text-sm">${icon}</span></div>
+          <div class="min-w-0">
+            <p class="text-xs font-extrabold text-textDark dark:text-white">${esc(log.actionType)}</p>
+            <p class="text-[11px] text-textMuted dark:text-textMutedDark truncate">${esc(log.description||"—")}</p>
+          </div>
+        </div>
+        <p class="text-[11px] font-bold text-textMuted dark:text-textMutedDark whitespace-nowrap flex-shrink-0">${timeAgo(log.timestamp)}</p>
+      </div>`;
+    }).join("");
+  }
+
+  async function loadRestock() {
+    const list = document.getElementById("restockList");
+    const raw  = await apiFetch("/api/sales/restock-recommendations?days=30");
+    const data = Array.isArray(raw) ? raw : (raw?.recommendations || raw?.data || []);
+    if (!data.length) { list.innerHTML = `<div class="px-5 py-4 text-center"><p class="text-xs text-textMuted dark:text-textMutedDark">All stock levels healthy.</p></div>`; setText("restockSubtitle","All levels OK"); return; }
+    const high = data.filter(r => r.priority === "HIGH");
+    setText("restockSubtitle", high.length > 0 ? `${high.length} HIGH priority` : `${data.length} item(s) to review`);
+    list.innerHTML = (high.length > 0 ? high : data).slice(0,4).map(r => {
+      const pc = r.priority==="HIGH" ? "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/20" : "text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-950/20";
+      const nm = r.medicineName || (r.medicineId?.slice(0,10)+"…");
+      return `<div class="px-5 py-3 flex items-center justify-between gap-2">
+        <div class="min-w-0"><p class="text-xs font-extrabold text-textDark dark:text-white truncate">${esc(nm)}</p><p class="text-[11px] text-textMuted dark:text-textMutedDark">${r.daysOfStockLeft??"?"} days · order ${r.recommendedOrder??0}</p></div>
+        <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full flex-shrink-0 ${pc}">${r.priority}</span>
+      </div>`;
+    }).join("");
+  }
+
+  function applyTheme(t) {
+    ["themeIconTop","themeIconSide"].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=t==="dark"?"light_mode":"dark_mode"; });
+    t==="dark" ? document.documentElement.classList.add("dark") : document.documentElement.classList.remove("dark");
+    localStorage.setItem("meditrace_theme",t);
+  }
+  (function(){ const s=localStorage.getItem("meditrace_theme"); applyTheme(s||(window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light")); })();
+  ["themeToggleTop","themeToggleSide"].forEach(id => { const b=document.getElementById(id); if(b) b.addEventListener("click",()=>applyTheme(document.documentElement.classList.contains("dark")?"light":"dark")); });
+  (function(){ const active=document.body.getAttribute("data-page"); document.querySelectorAll(".navbtn").forEach(a => { const k=a.getAttribute("data-nav"); const i=a.querySelector(".navicon"); a.classList.remove("bg-brandBlue/10","dark:bg-brandBlue/15","border-black/5","dark:border-borderDark"); if(i) i.classList.remove("text-brandBlue"); if(k===active){ a.classList.add("bg-brandBlue/10","dark:bg-brandBlue/15","border-black/5","dark:border-borderDark"); if(i){i.classList.remove("text-textMuted","dark:text-textMutedDark");i.classList.add("text-brandBlue");} } }); })();
+
+  // Show Users link only for owners
+(function(){ if (localStorage.getItem("meditrace_role") === "owner") { const el = document.getElementById("navUsersLink"); if (el) el.style.display = ""; } })();
+
+  loadUserInfo();
+  Promise.all([loadInventory(), loadExpiryData(), loadActivity(), loadRestock()]);
+</script>
+</body>
+</html>

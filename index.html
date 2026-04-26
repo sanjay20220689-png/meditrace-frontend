@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>MediTrace - Login</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap" rel="stylesheet" />
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD2LhB-cp6roklmQ91_-2GcqzuxrXTI6jM",
+      authDomain: "fyp0689.firebaseapp.com",
+      projectId: "fyp0689",
+      storageBucket: "fyp0689.firebasestorage.app",
+      messagingSenderId: "654257536161",
+      appId: "1:654257536161:web:83afd59d618813cd5344e0",
+      measurementId: "G-VEFXSZEZHM"
+    };
+
+    const BASE_URL = "http://localhost:5000";
+
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    function showError(msg) {
+      const banner = document.getElementById("errorBanner");
+      const text   = document.getElementById("errorText");
+      text.textContent = msg;
+      banner.classList.remove("hidden");
+    }
+
+    function hideError() {
+      document.getElementById("errorBanner").classList.add("hidden");
+    }
+
+    function setLoading(loading) {
+      const btn     = document.getElementById("submitBtn");
+      const btnText = document.getElementById("btnText");
+      const btnIcon = document.getElementById("btnIcon");
+      const spinner = document.getElementById("btnSpinner");
+      btn.disabled = loading;
+      if (loading) {
+        btnText.textContent = "Signing in…";
+        btnIcon.classList.add("hidden");
+        spinner.classList.remove("hidden");
+      } else {
+        btnText.textContent = "Sign In";
+        btnIcon.classList.remove("hidden");
+        spinner.classList.add("hidden");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+      // If already logged in, skip to dashboard
+      const savedToken  = localStorage.getItem("meditrace_token");
+      const tokenExpiry = localStorage.getItem("meditrace_token_expiry");
+      if (savedToken && tokenExpiry && Date.now() < parseInt(tokenExpiry)) {
+        window.location.href = "dashboard.html";
+        return;
+      }
+
+      document.getElementById("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        hideError();
+        setLoading(true);
+
+        const email    = document.getElementById("emailInput").value.trim();
+        const password = document.getElementById("passwordInput").value;
+        const remember = document.getElementById("remember").checked;
+
+        try {
+          // Step 1: Firebase sign-in
+          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+          const user  = userCredential.user;
+          const token = await user.getIdToken();
+
+          // Step 2: Fetch user profile from backend to get role + username
+          // The backend's authenticate middleware reads the Firestore doc
+          // and the /api/users endpoint returns all users (owner only)
+          // OR we can call a dedicated /api/users/me endpoint if you add one.
+          // For now we fetch all users and find ourselves — works for all roles
+          // because the middleware attaches req.user.role.
+          let role     = "pharmacist"; // safe default
+          let username = "";
+
+          try {
+            const profileRes = await fetch(`${BASE_URL}/api/users`, {
+              headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
+            });
+
+            if (profileRes.ok) {
+              const data  = await profileRes.json();
+              const users = Array.isArray(data) ? data : (data?.users || data?.data || []);
+              const me    = users.find(u => (u.userId || u.uid) === user.uid);
+              if (me) {
+                role     = me.role     || "pharmacist";
+                username = me.username || "";
+              }
+            } else if (profileRes.status === 403) {
+              // 403 means the user exists but doesn't have owner access to /api/users
+              // Non-owners can't list users — that's fine, just use Firestore role from token
+              // The middleware attaches role to req.user, but we can't read that from here.
+              // Instead, add a /api/users/me route (see note below).
+              // For now: the middleware stores role in the verified token context,
+              // so the dashboard will work — role pill will show after account.html loads it.
+              role = "pharmacist";
+            }
+          } catch (profileErr) {
+            // Network error fetching profile — proceed with default role
+            console.warn("Could not fetch profile, using default role:", profileErr);
+          }
+
+          // Step 3: Store everything
+          const expiry = Date.now() + 55 * 60 * 1000; // 55 min
+          localStorage.setItem("meditrace_token",        token);
+          localStorage.setItem("meditrace_token_expiry", expiry.toString());
+          localStorage.setItem("meditrace_uid",          user.uid);
+          localStorage.setItem("meditrace_email",        user.email);
+          localStorage.setItem("meditrace_role",         role);
+          localStorage.setItem("meditrace_username",     username);
+
+          if (remember) localStorage.setItem("meditrace_remember", "true");
+
+          window.location.href = "dashboard.html";
+
+        } catch (err) {
+          setLoading(false);
+          switch (err.code) {
+            case "auth/user-not-found":
+            case "auth/wrong-password":
+            case "auth/invalid-credential":
+              showError("Invalid email or password. Please try again.");
+              break;
+            case "auth/invalid-email":
+              showError("Please enter a valid email address.");
+              break;
+            case "auth/too-many-requests":
+              showError("Too many failed attempts. Please wait a moment and try again.");
+              break;
+            case "auth/network-request-failed":
+              showError("Network error. Please check your connection.");
+              break;
+            default:
+              showError("Sign in failed. Please try again.");
+          }
+        }
+      });
+    });
+  </script>
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brandRed:      "#cc0000",
+            brandBlue:     "#455b94",
+            pageBg:        "#ffffff",
+            cardBg:        "#f3f4f6",
+            panelBg:       "#f7f8fa",
+            textDark:      "#111418",
+            textMuted:     "#637588",
+            pageBgDark:    "#0b1220",
+            cardBgDark:    "#0f1a2b",
+            panelBgDark:   "#0c1626",
+            textMutedDark: "#9fb0c8",
+            borderDark:    "#1f2c45",
+          },
+          fontFamily: { display: ["Public Sans", "sans-serif"] },
+          borderRadius: { xl: "1.25rem", "2xl": "1.5rem" },
+          boxShadow:    { soft: "0 30px 80px rgba(17, 24, 39, 0.18)" },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    body { font-family: "Public Sans", sans-serif; }
+  </style>
+</head>
+
+<body class="min-h-screen bg-pageBg dark:bg-pageBgDark flex items-center justify-center p-6">
+
+  <div class="w-full max-w-[1100px] rounded-[28px] bg-cardBg dark:bg-cardBgDark shadow-soft p-4 sm:p-6 border border-black/5 dark:border-borderDark">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- LEFT: Form panel -->
+      <div class="rounded-[24px] bg-panelBg dark:bg-panelBgDark px-8 py-10 sm:px-10 sm:py-12 relative overflow-hidden border border-black/5 dark:border-borderDark">
+        <div class="absolute inset-0 pointer-events-none opacity-60"
+             style="background: radial-gradient(700px 350px at 20% 10%, rgba(69,91,148,0.18), transparent 60%),
+                            radial-gradient(700px 350px at 70% 90%, rgba(204,0,0,0.14), transparent 60%);">
+        </div>
+
+        <div class="relative">
+          <!-- Top row: Logo + theme toggle -->
+          <div class="flex items-center justify-between">
+            <div class="inline-flex items-center gap-2 rounded-full border border-black/10 dark:border-borderDark bg-white/70 dark:bg-white/10 px-4 py-2">
+              <span class="material-symbols-outlined text-brandRed" style="font-variation-settings:'FILL' 1">medical_services</span>
+              <span class="font-extrabold text-sm text-textDark dark:text-white">MediTrace</span>
+            </div>
+
+            <button
+              id="themeToggle"
+              type="button"
+              class="h-10 w-10 rounded-full border border-black/10 dark:border-borderDark bg-white/70 dark:bg-white/10 hover:bg-white dark:hover:bg-white/15 transition grid place-items-center"
+              aria-label="Toggle dark mode">
+              <span id="themeIcon" class="material-symbols-outlined text-textDark dark:text-white">dark_mode</span>
+            </button>
+          </div>
+
+          <div class="mt-10">
+            <h1 class="text-[34px] font-black leading-tight text-textDark dark:text-white">Welcome back</h1>
+            <p class="text-textMuted dark:text-textMutedDark font-medium mt-2">
+              Sign in to manage inventory, FEFO dispensing &amp; compliance.
+            </p>
+          </div>
+
+          <!-- Error banner -->
+          <div id="errorBanner"
+               class="hidden mt-6 flex items-center gap-3 rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/30 px-4 py-3">
+            <span class="material-symbols-outlined text-brandRed text-xl flex-shrink-0">error</span>
+            <p id="errorText" class="text-sm font-semibold text-brandRed"></p>
+          </div>
+
+          <form id="loginForm" class="mt-8 flex flex-col gap-5">
+            <!-- Email -->
+            <label class="flex flex-col gap-2">
+              <span class="text-sm font-semibold text-textDark dark:text-white">Email</span>
+              <div class="relative">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-textMuted dark:text-textMutedDark text-xl">person</span>
+                <input
+                  id="emailInput"
+                  class="form-input w-full h-12 rounded-full pl-12 pr-4
+                         bg-white dark:bg-pageBgDark
+                         border border-black/10 dark:border-borderDark
+                         text-textDark dark:text-white placeholder:text-textMuted/70 dark:placeholder:text-textMutedDark/70
+                         focus:outline-none focus:ring-4 focus:ring-brandBlue/15 focus:border-brandBlue"
+                  placeholder="Enter your email"
+                  type="email"
+                  required
+                />
+              </div>
+            </label>
+
+            <!-- Password -->
+            <label class="flex flex-col gap-2">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-textDark dark:text-white">Password</span>
+                <a class="text-brandBlue text-xs font-bold hover:underline" href="#"
+                   onclick="alert('Password reset is not available in this prototype.')">
+                  Forgot password?
+                </a>
+              </div>
+              <div class="relative">
+                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-textMuted dark:text-textMutedDark text-xl">lock</span>
+                <input
+                  id="passwordInput"
+                  class="form-input w-full h-12 rounded-full pl-12 pr-4
+                         bg-white dark:bg-pageBgDark
+                         border border-black/10 dark:border-borderDark
+                         text-textDark dark:text-white placeholder:text-textMuted/70 dark:placeholder:text-textMutedDark/70
+                         focus:outline-none focus:ring-4 focus:ring-brandRed/15 focus:border-brandRed"
+                  placeholder="Enter your password"
+                  type="password"
+                  required
+                />
+              </div>
+            </label>
+
+            <div class="flex items-center justify-between pt-1">
+              <label class="flex items-center gap-2">
+                <input class="rounded border-black/10 dark:border-borderDark text-brandRed focus:ring-brandRed" id="remember" type="checkbox" />
+                <span class="text-sm text-textMuted dark:text-textMutedDark">Keep me logged in</span>
+              </label>
+            </div>
+
+            <!-- Submit -->
+            <button
+              id="submitBtn"
+              class="h-12 rounded-full font-extrabold text-white flex items-center justify-center gap-2
+                     bg-brandRed hover:bg-brandRed/90 transition shadow-[0_18px_50px_rgba(204,0,0,0.18)]
+                     disabled:opacity-60 disabled:cursor-not-allowed"
+              type="submit">
+              <span id="btnIcon" class="material-symbols-outlined text-base">login</span>
+              <svg id="btnSpinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+              </svg>
+              <span id="btnText">Sign In</span>
+            </button>
+          </form>
+
+          <div class="mt-10 flex items-center justify-between text-xs text-textMuted dark:text-textMutedDark">
+            <a class="hover:text-brandBlue transition" href="#" onclick="alert('Help Center is not available in this prototype.')">Help Center</a>
+            <a class="hover:text-brandBlue transition" href="#" onclick="alert('Please contact the system administrator.')">Contact Admin</a>
+          </div>
+
+          <p class="mt-4 text-[10px] text-textMuted/60 dark:text-textMutedDark/60">
+            v1.0.0 | © 2026 MediTrace Systems
+          </p>
+        </div>
+      </div>
+
+      <!-- RIGHT: Image panel (unchanged) -->
+      <div class="rounded-[24px] overflow-hidden relative min-h-[420px] lg:min-h-[580px] border border-black/5 dark:border-borderDark">
+        <img
+          src="img.jpg"
+          alt="Medication / Pharmacy"
+          class="absolute inset-0 w-full h-full object-cover"
+        />
+        <div class="absolute inset-0"
+             style="background:
+               linear-gradient(120deg, rgba(69,91,148,0.35), rgba(204,0,0,0.22)),
+               radial-gradient(800px 400px at 70% 30%, rgba(255,255,255,0.18), transparent 55%),
+               linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.18));">
+        </div>
+        <button
+          class="absolute top-4 right-4 h-10 w-10 rounded-full bg-white/80 hover:bg-white transition grid place-items-center"
+          type="button" aria-label="Close"
+          onclick="alert('Close is not implemented in this prototype.')">
+          <span class="material-symbols-outlined text-textDark">close</span>
+        </button>
+        <div class="absolute bottom-6 left-6 right-6">
+          <div class="inline-flex items-center gap-2 rounded-2xl bg-white/75 backdrop-blur px-4 py-3 border border-white/40">
+            <span class="material-symbols-outlined text-brandBlue">inventory_2</span>
+            <div class="leading-tight">
+              <p class="text-textDark font-extrabold text-sm">Track batches &amp; expiry</p>
+              <p class="text-textMuted text-xs font-semibold">FEFO dispensing • audit-ready logs</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function applyTheme(theme) {
+      const root = document.documentElement;
+      const icon = document.getElementById("themeIcon");
+      if (theme === "dark") {
+        root.classList.add("dark");
+        icon.textContent = "light_mode";
+      } else {
+        root.classList.remove("dark");
+        icon.textContent = "dark_mode";
+      }
+      localStorage.setItem("meditrace_theme", theme);
+    }
+
+    (function initTheme() {
+      const saved = localStorage.getItem("meditrace_theme");
+      if (saved) return applyTheme(saved);
+      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      applyTheme(prefersDark ? "dark" : "light");
+    })();
+
+    document.getElementById("themeToggle").addEventListener("click", () => {
+      applyTheme(document.documentElement.classList.contains("dark") ? "light" : "dark");
+    });
+  </script>
+</body>
+</html>

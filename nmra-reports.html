@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>MediTrace - NMRA Reports</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brandRed: "#cc0000", brandBlue: "#455b94",
+            pageBg: "#ffffff", cardBg: "#f3f4f6", panelBg: "#f7f8fa",
+            textDark: "#111418", textMuted: "#637588",
+            pageBgDark: "#0b1220", cardBgDark: "#0f1a2b", panelBgDark: "#0c1626",
+            textMutedDark: "#9fb0c8", borderDark: "#1f2c45",
+          },
+          fontFamily: { display: ["Public Sans", "sans-serif"] },
+          borderRadius: { xl: "1.25rem", "2xl": "1.5rem" },
+          boxShadow: { soft: "0 30px 80px rgba(17, 24, 39, 0.18)" },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { font-family: "Public Sans", sans-serif; }
+    .skeleton { animation: pulse 1.5s ease-in-out infinite; background: linear-gradient(90deg, rgba(0,0,0,0.06) 25%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.06) 75%); background-size: 200% 100%; }
+    .dark .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%); background-size: 200% 100%; }
+    @keyframes pulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  </style>
+</head>
+<body data-page="nmra" class="min-h-screen bg-pageBg dark:bg-pageBgDark font-display">
+<div class="min-h-screen flex">
+  <aside class="hidden lg:flex w-[92px] p-4">
+    <div class="w-full rounded-[24px] bg-cardBg dark:bg-cardBgDark shadow-soft border border-black/5 dark:border-borderDark flex flex-col items-center py-4 gap-4">
+      <a href="dashboard.html" class="group relative h-12 w-12 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center">
+        <span class="material-symbols-outlined text-brandRed text-2xl" style="font-variation-settings:'FILL' 1">medical_services</span>
+        <span class="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Dashboard</span>
+      </a>
+      <div class="h-px w-10 bg-black/10 dark:bg-borderDark my-1"></div>
+      <nav class="flex flex-col items-center gap-2">
+        <a href="dashboard.html" data-nav="dashboard" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10"><span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">home</span><span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Dashboard</span></a>
+        <a href="sales.html" data-nav="sales" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10"><span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">point_of_sale</span><span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Sales (FEFO)</span></a>
+        <a href="inventory.html" data-nav="inventory" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10"><span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">inventory_2</span><span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Inventory</span></a>
+        <a href="expiry-alerts.html" data-nav="expiry" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10"><span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">warning</span><span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Expiry Alerts</span></a>
+        <a href="nmra-reports.html" data-nav="nmra" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10"><span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">description</span><span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">NMRA Reports</span></a>
+        <a href="forecasting.html" data-nav="forecast" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10"><span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">analytics</span><span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Forecasting</span></a>
+        <a href="users.html" data-nav="users" id="navUsersLink" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10" style="display:none">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">manage_accounts</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">User Management</span>
+        </a>
+        <a href="account.html" data-nav="account" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">account_circle</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">My Account</span>
+        </a>
+      </nav>
+      <div class="mt-auto flex flex-col items-center gap-2">
+        <button id="themeToggleSide" class="group relative h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center hover:bg-white transition"><span id="themeIconSide" class="material-symbols-outlined text-textDark dark:text-white">dark_mode</span><span class="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Toggle theme</span></button>
+        <button onclick="logout()" class="group relative h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center hover:bg-white transition"><span class="material-symbols-outlined text-textDark dark:text-white">logout</span><span class="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Logout</span></button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="flex-1">
+    <header class="sticky top-0 z-40 px-6 lg:px-10 py-4">
+      <div class="rounded-[24px] bg-cardBg dark:bg-cardBgDark shadow-soft border border-black/5 dark:border-borderDark px-5 py-4">
+        <div class="flex items-center justify-between gap-4">
+          <a href="dashboard.html" class="flex items-center gap-3">
+            <div class="h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center"><span class="material-symbols-outlined text-brandRed text-2xl" style="font-variation-settings:'FILL' 1">medical_services</span></div>
+            <div class="hidden sm:block"><p class="text-textDark dark:text-white font-black leading-tight">MediTrace</p><p class="text-[11px] text-textMuted dark:text-textMutedDark -mt-0.5">NMRA Reports</p></div>
+          </a>
+          <div class="flex items-center gap-2">
+            <button id="themeToggleTop" class="h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center hover:bg-white transition"><span id="themeIconTop" class="material-symbols-outlined text-textDark dark:text-white">dark_mode</span></button>
+            <button onclick="logout()" class="h-11 px-5 rounded-full bg-brandRed text-white font-extrabold text-sm hover:bg-brandRed/90 transition">Logout</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="px-6 lg:px-10 pb-10">
+      <div class="max-w-[1200px] mx-auto">
+        <div class="mt-1">
+          <h1 class="text-3xl font-black text-textDark dark:text-white">NMRA Reports</h1>
+        </div>
+
+        <!-- KPI banner -->
+        <section class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-5"><p class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">Total Write-Offs</p><p id="kpiWriteOffCount" class="text-3xl font-black text-textDark dark:text-white mt-2">--</p><p class="text-xs text-textMuted dark:text-textMutedDark mt-1">Disposal records</p></div>
+          <div class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-5"><p class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">Financial Loss</p><p id="kpiWriteOffLoss" class="text-3xl font-black text-brandRed mt-2">--</p><p class="text-xs text-textMuted dark:text-textMutedDark mt-1">LKR total from write-offs</p></div>
+          <div class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-5"><p class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">Total Sales</p><p id="kpiSalesCount" class="text-3xl font-black text-textDark dark:text-white mt-2">--</p><p class="text-xs text-textMuted dark:text-textMutedDark mt-1">Transactions recorded</p></div>
+        </section>
+
+        <!-- Export cards -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+
+          <!-- Supplier Intake — with date range filter -->
+          <div class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft overflow-hidden">
+            <div class="p-6 border-b border-black/5 dark:border-borderDark">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-brandBlue">local_shipping</span>
+                <h2 class="text-lg font-black text-textDark dark:text-white">Supplier Intake Report</h2>
+              </div>
+            </div>
+            <div class="p-6 space-y-4">
+              <!-- Supplier select -->
+              <div>
+                <label class="text-sm font-extrabold text-textDark dark:text-white">Supplier</label>
+                <div class="mt-2 relative">
+                  <select id="supplierSelect" class="form-select w-full rounded-full h-12 pl-4 pr-10 bg-white/80 dark:bg-pageBgDark border border-black/10 dark:border-borderDark text-textDark dark:text-white focus:outline-none focus:ring-4 focus:ring-brandBlue/15 focus:border-brandBlue">
+                    <option value="">Loading suppliers…</option>
+                  </select>
+                  <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-textMuted dark:text-textMutedDark">expand_more</span>
+                </div>
+              </div>
+              <!-- Optional date range filter -->
+              <div>
+                <label class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">Filter by intake date (optional)</label>
+                <div class="mt-2 grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="text-xs text-textMuted dark:text-textMutedDark">From</label>
+                    <input id="supplierDateFrom" type="date" class="mt-1 w-full rounded-full h-10 px-4 bg-white/80 dark:bg-pageBgDark border border-black/10 dark:border-borderDark text-textDark dark:text-white text-sm focus:outline-none focus:ring-4 focus:ring-brandBlue/15 focus:border-brandBlue" />
+                  </div>
+                  <div>
+                    <label class="text-xs text-textMuted dark:text-textMutedDark">To</label>
+                    <input id="supplierDateTo" type="date" class="mt-1 w-full rounded-full h-10 px-4 bg-white/80 dark:bg-pageBgDark border border-black/10 dark:border-borderDark text-textDark dark:text-white text-sm focus:outline-none focus:ring-4 focus:ring-brandBlue/15 focus:border-brandBlue" />
+                  </div>
+                </div>
+              </div>
+              <button onclick="exportSupplierIntake()" class="h-12 w-full rounded-full bg-brandBlue text-white font-extrabold hover:bg-brandBlue/90 transition flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-base">download</span>Export Supplier Intake
+              </button>
+              <p class="text-xs text-textMuted dark:text-textMutedDark">Output: supplier-intake_SUPPLIERNAME.csv</p>
+            </div>
+          </div>
+
+          <!-- Sales by Date Range -->
+          <div class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft overflow-hidden">
+            <div class="p-6 border-b border-black/5 dark:border-borderDark">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-brandRed">event</span>
+                <h2 class="text-lg font-black text-textDark dark:text-white">Sales Report (Date Range)</h2>
+              </div>
+              <p class="text-sm text-textMuted dark:text-textMutedDark mt-2">Export all sales transactions for a date range with full FEFO batch allocation traceability.</p>
+            </div>
+            <div class="p-6 space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div><label class="text-sm font-extrabold text-textDark dark:text-white">From</label><input id="dateFrom" type="date" class="mt-2 w-full rounded-full h-12 px-4 bg-white/80 dark:bg-pageBgDark border border-black/10 dark:border-borderDark text-textDark dark:text-white focus:outline-none focus:ring-4 focus:ring-brandRed/15 focus:border-brandRed" /></div>
+                <div><label class="text-sm font-extrabold text-textDark dark:text-white">To</label><input id="dateTo" type="date" class="mt-2 w-full rounded-full h-12 px-4 bg-white/80 dark:bg-pageBgDark border border-black/10 dark:border-borderDark text-textDark dark:text-white focus:outline-none focus:ring-4 focus:ring-brandRed/15 focus:border-brandRed" /></div>
+              </div>
+              <button onclick="exportSalesByDate()" class="h-12 w-full rounded-full bg-brandRed text-white font-extrabold hover:bg-brandRed/90 transition flex items-center justify-center gap-2"><span class="material-symbols-outlined text-base">download</span>Export Sales Report</button>
+              <p class="text-xs text-textMuted dark:text-textMutedDark">Output: sales_YYYY-MM-DD_to_YYYY-MM-DD.csv</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Write-Off Report with date filter -->
+        <section class="mt-6 rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft overflow-hidden">
+          <div class="p-5 border-b border-black/5 dark:border-borderDark">
+            <div class="flex items-center justify-between gap-3 flex-wrap">
+              <div>
+                <div class="flex items-center gap-2"><span class="material-symbols-outlined text-brandRed">delete</span><h2 class="text-lg font-black text-textDark dark:text-white">Write-Off Disposal Report</h2></div>
+              </div>
+              <button onclick="exportWriteOffs()" class="h-11 px-5 rounded-full bg-brandRed text-white font-extrabold text-sm hover:bg-brandRed/90 transition flex items-center gap-2"><span class="material-symbols-outlined text-base">download</span>Export Write-Off Report</button>
+            </div>
+            <div class="mt-4 flex flex-wrap items-end gap-3">
+              <div><label class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">From</label><input id="writeOffFrom" type="date" class="mt-1 block rounded-full h-10 px-4 bg-white/80 dark:bg-pageBgDark border border-black/10 dark:border-borderDark text-textDark dark:text-white text-sm focus:outline-none focus:ring-4 focus:ring-brandRed/15 focus:border-brandRed" /></div>
+              <div><label class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">To</label><input id="writeOffTo" type="date" class="mt-1 block rounded-full h-10 px-4 bg-white/80 dark:bg-pageBgDark border border-black/10 dark:border-borderDark text-textDark dark:text-white text-sm focus:outline-none focus:ring-4 focus:ring-brandRed/15 focus:border-brandRed" /></div>
+              <button onclick="applyWriteOffFilter()" class="h-10 px-5 rounded-full bg-brandBlue text-white font-extrabold text-sm hover:bg-brandBlue/90 transition flex items-center gap-2"><span class="material-symbols-outlined text-base">filter_alt</span>Apply</button>
+              <button onclick="clearWriteOffFilter()" class="h-10 px-4 rounded-full bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark text-textDark dark:text-white font-extrabold text-sm hover:bg-white dark:hover:bg-white/20 transition">Clear</button>
+              <p id="writeOffFilterInfo" class="text-xs font-bold text-textMuted dark:text-textMutedDark"></p>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead class="bg-white/60 dark:bg-white/5">
+                <tr>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Batch No.</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Medicine</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Qty Written Off</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Reason</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Financial Loss</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase text-right">Date</th>
+                </tr>
+              </thead>
+              <tbody id="writeOffRows" class="divide-y divide-black/5 dark:divide-borderDark">
+                <tr><td colspan="6" class="px-6 py-4"><div class="skeleton h-10 rounded-xl"></div></td></tr>
+                <tr><td colspan="6" class="px-6 py-4"><div class="skeleton h-8 rounded-xl"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Batch Intake Preview -->
+        <section class="mt-6 rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft overflow-hidden">
+          <div class="p-5 border-b border-black/5 dark:border-borderDark flex items-center justify-between gap-3 flex-wrap">
+            <div>
+              <p class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">Batch Intake Preview</p>
+            </div>
+            <a href="inventory.html" class="text-brandBlue font-extrabold text-sm hover:underline">Go to Inventory →</a>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead class="bg-white/60 dark:bg-white/5">
+                <tr>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Batch No.</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Supplier</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Medicine</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Expiry Date</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Cost Price</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase text-right">Qty</th>
+                </tr>
+              </thead>
+              <tbody id="intakeRows" class="divide-y divide-black/5 dark:divide-borderDark">
+                <tr><td colspan="6" class="px-6 py-4"><div class="skeleton h-10 rounded-xl"></div></td></tr>
+                <tr><td colspan="6" class="px-6 py-4"><div class="skeleton h-10 rounded-xl"></div></td></tr>
+                <tr><td colspan="6" class="px-6 py-4"><div class="skeleton h-10 rounded-xl"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="px-6 py-4 border-t border-black/5 dark:border-borderDark text-sm text-textMuted dark:text-textMutedDark">All exports trace dispensed medicine back to supplier via batch number — satisfying NMRA audit requirements.</div>
+        </section>
+
+        <!-- Compliance note -->
+        <section class="mt-6 rounded-[24px] bg-brandBlue/10 dark:bg-brandBlue/15 border border-black/10 dark:border-borderDark shadow-soft p-5 flex items-start gap-3">
+          <span class="material-symbols-outlined text-brandBlue">verified_user</span>
+          <div><p class="text-sm font-extrabold text-brandBlue">NMRA Compliance Ready</p><p class="text-sm text-brandBlue/90 font-medium mt-1">All exported CSVs include batch numbers, supplier references, expiry dates and FEFO allocation records — meeting the National Medicines Regulatory Authority (NMRA) requirements for pharmacy record-keeping in Sri Lanka.</p></div>
+        </section>
+
+        <footer class="mt-8 pb-10 text-xs text-textMuted dark:text-textMutedDark">
+          <div class="rounded-[24px] bg-cardBg dark:bg-cardBgDark border border-black/5 dark:border-borderDark shadow-soft px-5 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2"><span class="h-2 w-2 bg-green-500 rounded-full"></span><span class="font-semibold">System status: Connected</span></div>
+            <span class="font-semibold">v1.0.0 | © 2026 MediTrace Systems</span>
+          </div>
+        </footer>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  const BASE_URL = "http://localhost:5000";
+  const token  = localStorage.getItem("meditrace_token");
+  const expiry = localStorage.getItem("meditrace_token_expiry");
+  if (!token || !expiry || Date.now() > parseInt(expiry)) { localStorage.clear(); window.location.href = "index.html"; }
+  function logout() { localStorage.clear(); window.location.href = "index.html"; }
+
+  async function apiFetch(endpoint) {
+    const res = await fetch(`${BASE_URL}${endpoint}`, { headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` } });
+    if (res.status === 401) { logout(); return null; }
+    return res.json();
+  }
+
+  let allBatches = [], allSales = [], allWriteOffs = [], allSuppliers = [];
+  let writeOffFilterFrom = null, writeOffFilterTo = null;
+
+  async function init() {
+    const today = new Date(), fromD = new Date(today);
+    fromD.setDate(fromD.getDate() - 7);
+    document.getElementById("dateTo").value   = today.toISOString().split("T")[0];
+    document.getElementById("dateFrom").value = fromD.toISOString().split("T")[0];
+
+    const [inventoryData, medsData, suppliersData, salesData, writeOffData] = await Promise.all([
+      apiFetch("/api/inventory"), apiFetch("/api/medications"), apiFetch("/api/suppliers"),
+      apiFetch("/api/sales"), apiFetch("/api/batches/write-offs"),
+    ]);
+
+    allSuppliers = Array.isArray(suppliersData) ? suppliersData : (suppliersData?.suppliers || suppliersData?.data || []);
+    allSales     = Array.isArray(salesData)     ? salesData     : (salesData?.sales     || salesData?.data || []);
+    allWriteOffs = Array.isArray(writeOffData)  ? writeOffData  : (writeOffData?.writeOffs || writeOffData?.data || []);
+
+    const medMap = {}, supplierMap = {};
+    (medsData || []).forEach(m => { medMap[m.medicineId] = m; });
+    allSuppliers.forEach(s => { supplierMap[s.supplierId] = s; });
+
+    const medIds = (inventoryData?.inventory || []).map(m => m.medicineId);
+    const batchArrays = await Promise.all(medIds.map(id => apiFetch(`/api/batches/medication/${id}`)));
+    allBatches = batchArrays.flat().filter(Boolean).map(b => ({
+      ...b,
+      _medName:      medMap[b.medicineId]?.name      || b.medicineId,
+      _supplierName: supplierMap[b.supplierId]?.name || b.supplierId,
+      _supplierId:   b.supplierId,
+      _createdAt:    b.createdAt || b.receivedAt || b.intakeDate || null,
+    }));
+    allBatches.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+
+    const totalLoss = allWriteOffs.reduce((sum, w) => sum + (w.financialLoss || 0), 0);
+    document.getElementById("kpiWriteOffCount").textContent = allWriteOffs.length;
+    document.getElementById("kpiWriteOffLoss").textContent  = `LKR ${totalLoss.toLocaleString("en-LK", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    document.getElementById("kpiSalesCount").textContent    = allSales.length;
+
+    populateSuppliers();
+    renderIntakePreview();
+    renderWriteOffs();
+  }
+
+  function populateSuppliers() {
+    const sel = document.getElementById("supplierSelect");
+    if (!allSuppliers.length) { sel.innerHTML = `<option value="">No suppliers found</option>`; sel.disabled = true; return; }
+    sel.innerHTML = allSuppliers.slice().sort((a,b) => a.name.localeCompare(b.name)).map(s => `<option value="${s.supplierId}">${esc(s.name)}</option>`).join("");
+    sel.disabled = false;
+  }
+
+  function renderIntakePreview() {
+    const tbody = document.getElementById("intakeRows"), rows = allBatches.slice(0,12);
+    if (!rows.length) { tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-10 text-center"><p class="font-extrabold text-textDark dark:text-white">No inventory data</p><p class="text-sm text-textMuted dark:text-textMutedDark mt-1">Add batches in Inventory first.</p></td></tr>`; return; }
+    tbody.innerHTML = rows.map(b => `<tr class="hover:bg-white/60 dark:hover:bg-white/5 transition"><td class="px-6 py-4 font-mono text-sm font-extrabold text-textDark dark:text-white">${esc(b.batchNumber)}</td><td class="px-6 py-4 text-sm font-extrabold text-textDark dark:text-white">${esc(b._supplierName)}</td><td class="px-6 py-4 text-sm text-textMuted dark:text-textMutedDark">${esc(b._medName)}</td><td class="px-6 py-4 text-sm text-textMuted dark:text-textMutedDark">${esc(b.expiryDate)}</td><td class="px-6 py-4 text-sm text-textMuted dark:text-textMutedDark">${b.costPrice!=null?`LKR ${Number(b.costPrice).toFixed(2)}`:"—"}</td><td class="px-6 py-4 text-right text-sm font-extrabold text-textDark dark:text-white">${b.quantityAvailable}</td></tr>`).join("");
+  }
+
+  // ── Write-off date parser ─────────────────────────────────────────────────
+  function parseWriteOffDate(w) {
+    const raw = w.writtenOffAt ?? w.createdAt ?? w.timestamp ?? w.date ?? w.writtenAt ?? w.writeOffDate ?? w.written_at ?? null;
+    if (raw === null || raw === undefined) return null;
+    if (typeof raw === "object" && raw !== null) {
+      const secs = raw._seconds ?? raw.seconds;
+      if (typeof secs === "number") return new Date(secs * 1000);
+    }
+    if (typeof raw === "number") return new Date(raw);
+    if (typeof raw === "string" && raw.length > 0) {
+      const d = new Date(raw);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    return null;
+  }
+
+  // ── Batch date parser (for supplier intake date filter) ───────────────────
+  function parseBatchDate(b) {
+    const raw = b.createdAt ?? b.receivedAt ?? b.intakeDate ?? null;
+    if (!raw) return null;
+    if (typeof raw === "object") {
+      const secs = raw._seconds ?? raw.seconds;
+      if (typeof secs === "number") return new Date(secs * 1000);
+    }
+    if (typeof raw === "number") return new Date(raw);
+    if (typeof raw === "string" && raw.length > 0) {
+      const d = new Date(raw);
+      return isNaN(d.getTime()) ? null : d;
+    }
+    return null;
+  }
+
+  // ── Write-off filter ───────────────────────────────────────────────────────
+  function applyWriteOffFilter() {
+    const from = document.getElementById("writeOffFrom").value, to = document.getElementById("writeOffTo").value;
+    if (!from && !to) { showToast("Select at least one date to filter.", "error"); return; }
+    writeOffFilterFrom = from ? new Date(from + "T00:00:00") : null;
+    writeOffFilterTo   = to   ? new Date(to   + "T23:59:59") : null;
+    renderWriteOffs();
+  }
+
+  function clearWriteOffFilter() {
+    writeOffFilterFrom = writeOffFilterTo = null;
+    document.getElementById("writeOffFrom").value = "";
+    document.getElementById("writeOffTo").value = "";
+    document.getElementById("writeOffFilterInfo").textContent = "";
+    renderWriteOffs();
+  }
+
+  function renderWriteOffs() {
+    const tbody = document.getElementById("writeOffRows"), infoEl = document.getElementById("writeOffFilterInfo");
+    if (!allWriteOffs.length) {
+      if (infoEl) infoEl.textContent = "";
+      tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center"><p class="font-extrabold text-textDark dark:text-white">No write-offs recorded</p><p class="text-sm text-textMuted dark:text-textMutedDark mt-1">Write-offs are logged from the Expiry Alerts page.</p></td></tr>`;
+      return;
+    }
+    const batchMap = {};
+    allBatches.forEach(b => { batchMap[b.batchId] = b; });
+    let filtered = allWriteOffs;
+    if (writeOffFilterFrom || writeOffFilterTo) {
+      filtered = allWriteOffs.filter(w => {
+        const d = parseWriteOffDate(w);
+        if (!d) return false;
+        if (writeOffFilterFrom && d < writeOffFilterFrom) return false;
+        if (writeOffFilterTo   && d > writeOffFilterTo)   return false;
+        return true;
+      });
+    }
+    if (infoEl) infoEl.textContent = (writeOffFilterFrom || writeOffFilterTo) ? `Showing ${filtered.length} of ${allWriteOffs.length} record(s)` : `${allWriteOffs.length} record(s) total`;
+    if (!filtered.length) { tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center"><p class="font-extrabold text-textDark dark:text-white">No records in this date range</p><p class="text-sm text-textMuted dark:text-textMutedDark mt-1">Try adjusting or clearing the filter.</p></td></tr>`; return; }
+    tbody.innerHTML = filtered.map(w => {
+      const batch = batchMap[w.batchId] || {};
+      const d = parseWriteOffDate(w);
+      const date = d ? d.toLocaleDateString("en-LK", { day:"2-digit", month:"short", year:"numeric" }) : "—";
+      return `<tr class="hover:bg-white/60 dark:hover:bg-white/5 transition"><td class="px-6 py-4 font-mono text-sm font-extrabold text-textDark dark:text-white">${esc(batch.batchNumber || (w.batchId||"").slice(0,8)+"…")}</td><td class="px-6 py-4 text-sm text-textDark dark:text-white font-bold">${esc(batch._medName||"—")}</td><td class="px-6 py-4 text-sm font-extrabold text-brandRed">${w.quantityWrittenOff??"—"}</td><td class="px-6 py-4 text-sm text-textMuted dark:text-textMutedDark">${esc(w.reason||"—")}</td><td class="px-6 py-4 text-sm font-bold text-brandRed">${w.financialLoss!=null?`LKR ${Number(w.financialLoss).toFixed(2)}`:"—"}</td><td class="px-6 py-4 text-right text-sm font-bold text-textDark dark:text-white">${date}</td></tr>`;
+    }).join("");
+  }
+
+  // ── CSV helpers ────────────────────────────────────────────────────────────
+  function toCsv(headers, rows) {
+    const q = v => `"${String(v??"").replace(/"/g,'""')}"`;
+    return [headers.map(h=>q(h.label)).join(","), ...rows.map(r=>headers.map(h=>q(r[h.key])).join(","))].join("\n");
+  }
+  function downloadCsv(filename, csv) {
+    const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8;"})), download: filename });
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  // ── Export: Supplier Intake (with optional date filter) ───────────────────
+  function exportSupplierIntake() {
+    const supplierId = document.getElementById("supplierSelect").value;
+    if (!supplierId) { showToast("Please select a supplier.", "error"); return; }
+
+    const supplier  = allSuppliers.find(s => s.supplierId === supplierId);
+    const fromVal   = document.getElementById("supplierDateFrom").value;
+    const toVal     = document.getElementById("supplierDateTo").value;
+    const fromDate  = fromVal ? new Date(fromVal + "T00:00:00") : null;
+    const toDate    = toVal   ? new Date(toVal   + "T23:59:59") : null;
+
+    let rows = allBatches.filter(b => b._supplierId === supplierId);
+
+    // Apply date filter if set — filters by batch createdAt / receivedAt
+    if (fromDate || toDate) {
+      rows = rows.filter(b => {
+        const d = parseBatchDate(b);
+        // If batch has no date field and a filter is set, include it anyway
+        // (date not stored = can't exclude it definitively)
+        if (!d) return true;
+        if (fromDate && d < fromDate) return false;
+        if (toDate   && d > toDate)   return false;
+        return true;
+      });
+    }
+
+    if (!rows.length) { showToast("No batches found for this supplier.", "error"); return; }
+
+    const csvRows = rows.map(b => ({
+      batchNumber:  b.batchNumber,
+      supplier:     b._supplierName,
+      medicine:     b._medName,
+      expiryDate:   b.expiryDate,
+      costPrice:    b.costPrice    != null ? Number(b.costPrice).toFixed(2)    : "",
+      sellingPrice: b.sellingPrice != null ? Number(b.sellingPrice).toFixed(2) : "",
+      qty:          b.quantityAvailable,
+    }));
+
+    const safeName = (supplier?.name || supplierId).replace(/\s+/g, "-");
+    const suffix   = (fromVal && toVal) ? `_${fromVal}_to_${toVal}` : (fromVal ? `_from_${fromVal}` : (toVal ? `_to_${toVal}` : ""));
+    downloadCsv(`supplier-intake_${safeName}${suffix}.csv`, toCsv([
+      {key:"batchNumber", label:"Batch Number"},
+      {key:"supplier",    label:"Supplier"},
+      {key:"medicine",    label:"Medicine"},
+      {key:"expiryDate",  label:"Expiry Date"},
+      {key:"costPrice",   label:"Cost Price (LKR)"},
+      {key:"sellingPrice",label:"Selling Price (LKR)"},
+      {key:"qty",         label:"Quantity Available"},
+    ], csvRows));
+    showToast(`Exported ${csvRows.length} batch(es) for ${supplier?.name}.`);
+  }
+
+  // ── Export: Sales by Date Range ────────────────────────────────────────────
+  async function exportSalesByDate() {
+    const from = document.getElementById("dateFrom").value, to = document.getElementById("dateTo").value;
+    if (!from || !to) { showToast("Please select both dates.", "error"); return; }
+    if (from > to)    { showToast("From date cannot be after To date.", "error"); return; }
+    showToast("Fetching sales data…");
+    const salesData = await apiFetch(`/api/sales?startDate=${from}&endDate=${to}`);
+    const sales = Array.isArray(salesData) ? salesData : (salesData?.sales || salesData?.data || []);
+    if (!sales.length) { showToast(`No sales found between ${from} and ${to}.`, "error"); return; }
+    const batchMap = {};
+    allBatches.forEach(b => { batchMap[b.batchId] = b; });
+    const rows = [];
+    sales.forEach(sale => {
+      const saleDate = sale.createdAt ? new Date(sale.createdAt).toISOString().split("T")[0] : "—";
+      (sale.items||[]).forEach(item => {
+        const batch = batchMap[item.batchId]||{};
+        rows.push({ saleId:sale.saleId, date:saleDate, medicineId:item.medicineId, medicine:batch._medName||item.medicineId, batchNumber:batch.batchNumber||item.batchId, batchExpiry:batch.expiryDate||"—", supplier:batch._supplierName||"—", qty:item.quantity, unitPrice:item.unitPrice!=null?Number(item.unitPrice).toFixed(2):"—", lineTotal:item.unitPrice!=null?(item.unitPrice*item.quantity).toFixed(2):"—" });
+      });
+    });
+    downloadCsv(`sales_${from}_to_${to}.csv`, toCsv([{key:"saleId",label:"Sale ID"},{key:"date",label:"Date"},{key:"medicine",label:"Medicine"},{key:"batchNumber",label:"Batch No."},{key:"batchExpiry",label:"Batch Expiry"},{key:"supplier",label:"Supplier"},{key:"qty",label:"Qty Sold"},{key:"unitPrice",label:"Unit Price (LKR)"},{key:"lineTotal",label:"Line Total (LKR)"}], rows));
+    showToast(`Exported ${rows.length} line(s) from ${sales.length} sale(s).`);
+  }
+
+  // ── Export: Write-Offs ─────────────────────────────────────────────────────
+  function exportWriteOffs() {
+    if (!allWriteOffs.length) { showToast("No write-off records to export.", "error"); return; }
+    const batchMap = {};
+    allBatches.forEach(b => { batchMap[b.batchId] = b; });
+    let source = allWriteOffs;
+    if (writeOffFilterFrom || writeOffFilterTo) {
+      source = allWriteOffs.filter(w => { const d=parseWriteOffDate(w); if(!d)return false; if(writeOffFilterFrom&&d<writeOffFilterFrom)return false; if(writeOffFilterTo&&d>writeOffFilterTo)return false; return true; });
+      if (!source.length) { showToast("No records match the current filter.", "error"); return; }
+    }
+    const rows = source.map(w => { const batch=batchMap[w.batchId]||{}, d=parseWriteOffDate(w); return { writeOffId:w.writeOffId||w.id||"—", batchNumber:batch.batchNumber||w.batchId||"—", medicine:batch._medName||"—", supplier:batch._supplierName||"—", quantityWrittenOff:w.quantityWrittenOff??"—", reason:w.reason||"—", financialLoss:w.financialLoss!=null?Number(w.financialLoss).toFixed(2):"—", date:d?d.toISOString().split("T")[0]:"—" }; });
+    const from=(writeOffFilterFrom)?writeOffFilterFrom.toISOString().split("T")[0]:null, to=(writeOffFilterTo)?writeOffFilterTo.toISOString().split("T")[0]:null;
+    downloadCsv(`write-offs${from&&to?`_${from}_to_${to}`:`_${new Date().toISOString().split("T")[0]}`}.csv`, toCsv([{key:"writeOffId",label:"Write-Off ID"},{key:"batchNumber",label:"Batch No."},{key:"medicine",label:"Medicine"},{key:"supplier",label:"Supplier"},{key:"quantityWrittenOff",label:"Qty Written Off"},{key:"reason",label:"Reason"},{key:"financialLoss",label:"Financial Loss (LKR)"},{key:"date",label:"Date"}], rows));
+    showToast(`Exported ${rows.length} write-off record(s).`);
+  }
+
+  window.exportSupplierIntake = exportSupplierIntake;
+  window.exportSalesByDate    = exportSalesByDate;
+  window.exportWriteOffs      = exportWriteOffs;
+  window.applyWriteOffFilter  = applyWriteOffFilter;
+  window.clearWriteOffFilter  = clearWriteOffFilter;
+
+  function showToast(msg, type="success") {
+    const t = Object.assign(document.createElement("div"), { className: `fixed bottom-6 right-6 z-50 ${type==="error"?"bg-brandRed":"bg-brandBlue"} text-white px-5 py-3 rounded-2xl font-bold text-sm shadow-soft max-w-sm`, textContent: msg });
+    document.body.appendChild(t); setTimeout(() => t.remove(), 4000);
+  }
+
+  function esc(str) { return String(str??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+  function applyTheme(theme) {
+    ["themeIconTop","themeIconSide"].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=theme==="dark"?"light_mode":"dark_mode"; });
+    theme==="dark" ? document.documentElement.classList.add("dark") : document.documentElement.classList.remove("dark");
+    localStorage.setItem("meditrace_theme", theme);
+  }
+  (function(){ const s=localStorage.getItem("meditrace_theme"); applyTheme(s||(window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light")); })();
+  ["themeToggleTop","themeToggleSide"].forEach(id => { const b=document.getElementById(id); if(b) b.addEventListener("click",()=>applyTheme(document.documentElement.classList.contains("dark")?"light":"dark")); });
+
+  (function(){ const active=document.body.getAttribute("data-page"); document.querySelectorAll(".navbtn").forEach(a=>{ const k=a.getAttribute("data-nav"),i=a.querySelector(".navicon"); a.classList.remove("bg-brandBlue/10","dark:bg-brandBlue/15","border-black/5","dark:border-borderDark"); if(i) i.classList.remove("text-brandBlue"); if(k===active){ a.classList.add("bg-brandBlue/10","dark:bg-brandBlue/15","border-black/5","dark:border-borderDark"); if(i){i.classList.remove("text-textMuted","dark:text-textMutedDark");i.classList.add("text-brandBlue");} } }); })();
+
+  (function(){ if (localStorage.getItem("meditrace_role") === "owner") { const el = document.getElementById("navUsersLink"); if (el) el.style.display = ""; } })();
+  init();
+</script>
+</body>
+</html>

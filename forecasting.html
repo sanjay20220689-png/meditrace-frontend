@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>MediTrace - Forecasting</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brandRed: "#cc0000", brandBlue: "#455b94",
+            pageBg: "#ffffff", cardBg: "#f3f4f6", panelBg: "#f7f8fa",
+            textDark: "#111418", textMuted: "#637588",
+            pageBgDark: "#0b1220", cardBgDark: "#0f1a2b", panelBgDark: "#0c1626",
+            textMutedDark: "#9fb0c8", borderDark: "#1f2c45",
+          },
+          fontFamily: { display: ["Public Sans", "sans-serif"] },
+          borderRadius: { xl: "1.25rem", "2xl": "1.5rem" },
+          boxShadow: { soft: "0 30px 80px rgba(17, 24, 39, 0.18)" },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { font-family: "Public Sans", sans-serif; }
+    .skeleton { animation: pulse 1.5s ease-in-out infinite; background: linear-gradient(90deg, rgba(0,0,0,0.06) 25%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.06) 75%); background-size: 200% 100%; }
+    .dark .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%); background-size: 200% 100%; }
+    @keyframes pulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  </style>
+</head>
+
+<body data-page="forecast" class="min-h-screen bg-pageBg dark:bg-pageBgDark font-display">
+<div class="min-h-screen flex">
+
+  <!-- Sidebar -->
+  <aside class="hidden lg:flex w-[92px] p-4">
+    <div class="w-full rounded-[24px] bg-cardBg dark:bg-cardBgDark shadow-soft border border-black/5 dark:border-borderDark flex flex-col items-center py-4 gap-4">
+      <a href="dashboard.html" class="group relative h-12 w-12 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center">
+        <span class="material-symbols-outlined text-brandRed text-2xl" style="font-variation-settings:'FILL' 1">medical_services</span>
+        <span class="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Dashboard</span>
+      </a>
+      <div class="h-px w-10 bg-black/10 dark:bg-borderDark my-1"></div>
+      <nav class="flex flex-col items-center gap-2">
+        <a href="dashboard.html" data-nav="dashboard" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">home</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Dashboard</span>
+        </a>
+        <a href="sales.html" data-nav="sales" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">point_of_sale</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Sales (FEFO)</span>
+        </a>
+        <a href="inventory.html" data-nav="inventory" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">inventory_2</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Inventory</span>
+        </a>
+        <a href="expiry-alerts.html" data-nav="expiry" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">warning</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Expiry Alerts</span>
+        </a>
+        <a href="nmra-reports.html" data-nav="nmra" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">description</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">NMRA Reports</span>
+        </a>
+        <a href="forecasting.html" data-nav="forecast" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">analytics</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Forecasting</span>
+        </a>
+        <a href="users.html" data-nav="users" id="navUsersLink" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10" style="display:none">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">manage_accounts</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">User Management</span>
+        </a>
+        <a href="account.html" data-nav="account" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">account_circle</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">My Account</span>
+        </a>
+      </nav>
+      <div class="mt-auto flex flex-col items-center gap-2">
+        <button id="themeToggleSide" class="group relative h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center hover:bg-white transition" aria-label="Toggle dark mode">
+          <span id="themeIconSide" class="material-symbols-outlined text-textDark dark:text-white">dark_mode</span>
+          <span class="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Toggle theme</span>
+        </button>
+        <button class="group relative h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center hover:bg-white transition" onclick="logout()" aria-label="Logout">
+          <span class="material-symbols-outlined text-textDark dark:text-white">logout</span>
+          <span class="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="flex-1">
+    <header class="sticky top-0 z-40 px-6 lg:px-10 py-4">
+      <div class="rounded-[24px] bg-cardBg dark:bg-cardBgDark shadow-soft border border-black/5 dark:border-borderDark px-5 py-4">
+        <div class="flex items-center justify-between gap-4">
+          <a href="dashboard.html" class="flex items-center gap-3">
+            <div class="h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center">
+              <span class="material-symbols-outlined text-brandRed text-2xl" style="font-variation-settings:'FILL' 1">medical_services</span>
+            </div>
+            <div class="hidden sm:block">
+              <p class="text-textDark dark:text-white font-black leading-tight">MediTrace</p>
+              <p class="text-[11px] text-textMuted dark:text-textMutedDark -mt-0.5">Forecasting</p>
+            </div>
+          </a>
+          <div class="flex items-center gap-2">
+            <button id="themeToggleTop" class=" h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center hover:bg-white transition">
+              <span id="themeIconTop" class="material-symbols-outlined text-textDark dark:text-white">dark_mode</span>
+            </button>
+            <a href="inventory.html" class="h-11 px-5 rounded-full bg-brandBlue text-white font-extrabold text-sm hover:bg-brandBlue/90 transition flex items-center gap-2">
+              <span class="material-symbols-outlined text-base">inventory_2</span>Manage Inventory
+            </a>
+            <button onclick="logout()" class="h-11 px-5 rounded-full bg-brandRed text-white font-extrabold text-sm hover:bg-brandRed/90 transition">Logout</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="px-6 lg:px-10 pb-10">
+      <div class="max-w-[1400px] mx-auto">
+
+        <div class="mt-1 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-3xl font-black text-textDark dark:text-white">Demand Forecasting &amp; Inventory Analytics</h1>
+          </div>
+          <div class="flex items-center gap-2">
+            <!-- Days selector -->
+            <select id="daysSelect" onchange="refreshAll()"
+              class="form-select h-11 rounded-full px-4 bg-white/80 dark:bg-pageBgDark border border-black/10 dark:border-borderDark text-textDark dark:text-white text-sm font-bold focus:outline-none focus:ring-4 focus:ring-brandBlue/15 focus:border-brandBlue">
+              <option value="30" selected>Last 30 days</option>
+              <option value="60">Last 60 days</option>
+              <option value="90">Last 90 days</option>
+            </select>
+            <button onclick="refreshAll()" class="h-11 px-5 rounded-full bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark text-textDark dark:text-white font-extrabold text-sm hover:bg-white transition flex items-center gap-2">
+              <span class="material-symbols-outlined text-brandBlue">refresh</span>Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- KPI cards -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mt-6">
+          <div class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-6">
+            <div class="flex items-center justify-between">
+              <p class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">Fast Moving</p>
+              <span class="material-symbols-outlined text-green-500">trending_up</span>
+            </div>
+            <p id="kpiFast" class="text-3xl font-black text-textDark dark:text-white mt-3">--</p>
+            <p class="text-xs text-textMuted dark:text-textMutedDark mt-1">&gt; 3 units/day avg</p>
+          </div>
+          <div class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-6">
+            <div class="flex items-center justify-between">
+              <p class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">Slow Moving</p>
+              <span class="material-symbols-outlined text-amber-500">trending_down</span>
+            </div>
+            <p id="kpiSlow" class="text-3xl font-black text-textDark dark:text-white mt-3">--</p>
+            <p class="text-xs text-textMuted dark:text-textMutedDark mt-1">&lt; 1 unit/day avg</p>
+          </div>
+          <div class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-6">
+            <div class="flex items-center justify-between">
+              <p class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">Restock Needed</p>
+              <span class="material-symbols-outlined text-red-500">warning</span>
+            </div>
+            <p id="kpiRestock" class="text-3xl font-black text-brandRed mt-3">--</p>
+            <p class="text-xs text-textMuted dark:text-textMutedDark mt-1">HIGH priority items</p>
+          </div>
+          <div class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-6">
+            <div class="flex items-center justify-between">
+              <p class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">Total Tracked</p>
+              <span class="material-symbols-outlined text-brandBlue">analytics</span>
+            </div>
+            <p id="kpiTotal" class="text-3xl font-black text-textDark dark:text-white mt-3">--</p>
+            <p class="text-xs text-textMuted dark:text-textMutedDark mt-1">Medications with sales data</p>
+          </div>
+        </section>
+
+        <!-- Table -->
+        <section class="mt-6 rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft overflow-hidden">
+          <div class="p-5 border-b border-black/5 dark:border-borderDark flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <button id="btnAll"     onclick="setFilter('all')"     class="px-4 py-2 rounded-full text-sm font-extrabold">All Items</button>
+              <button id="btnFast"    onclick="setFilter('fast')"    class="px-4 py-2 rounded-full text-sm font-extrabold">Fast Moving</button>
+              <button id="btnSlow"    onclick="setFilter('slow')"    class="px-4 py-2 rounded-full text-sm font-extrabold">Slow Moving</button>
+              <button id="btnRestock" onclick="setFilter('restock')" class="px-4 py-2 rounded-full text-sm font-extrabold">Restock Needed</button>
+            </div>
+            <div class="flex items-center gap-2 rounded-full bg-white/80 dark:bg-pageBgDark border border-black/10 dark:border-borderDark px-4 h-11">
+              <span class="material-symbols-outlined text-textMuted dark:text-textMutedDark text-lg">search</span>
+              <input id="searchInput" class="border-none bg-transparent focus:ring-0 text-sm w-[220px] md:w-[280px] text-textDark dark:text-white placeholder:text-textMuted/70" placeholder="Search medicine…" oninput="applyFilters()" />
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead class="bg-white/60 dark:bg-white/5">
+                <tr>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Medicine</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Current Stock</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Daily Avg (Velocity)</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Days of Stock Left</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Priority</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase text-right">Recommended Order</th>
+                </tr>
+              </thead>
+              <tbody id="rowsTbody" class="divide-y divide-black/5 dark:divide-borderDark">
+                <!-- Skeletons -->
+                <tr><td colspan="6" class="px-6 py-4"><div class="skeleton h-10 rounded-xl"></div></td></tr>
+                <tr><td colspan="6" class="px-6 py-4"><div class="skeleton h-10 rounded-xl"></div></td></tr>
+                <tr><td colspan="6" class="px-6 py-4"><div class="skeleton h-10 rounded-xl"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="px-6 py-4 border-t border-black/5 dark:border-borderDark text-sm text-textMuted dark:text-textMutedDark">
+            Velocity = units sold ÷ selected day window. Recommended order = (14-day buffer × velocity) − current stock.
+          </div>
+        </section>
+
+        <!-- SPC tip banner -->
+        <section class="mt-6 rounded-[24px] bg-brandBlue/10 dark:bg-brandBlue/15 border border-black/10 dark:border-borderDark shadow-soft p-5 flex items-start gap-3">
+          <span class="material-symbols-outlined text-brandBlue">info</span>
+          <div>
+            <p class="text-sm font-extrabold text-brandBlue">SPC Alternative Tip</p>
+            <p class="text-sm text-brandBlue/90 font-medium mt-1">Fast-moving branded medications may have lower-cost SPC alternatives. Check the Sales page when recording a sale — MediTrace automatically suggests SPC substitutes where available.</p>
+          </div>
+        </section>
+
+        <footer class="mt-8 pb-10 text-xs text-textMuted dark:text-textMutedDark">
+          <div class="rounded-[24px] bg-cardBg dark:bg-cardBgDark border border-black/5 dark:border-borderDark shadow-soft px-5 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2"><span class="h-2 w-2 bg-green-500 rounded-full"></span><span class="font-semibold">System status: Connected</span></div>
+            <span class="font-semibold">v1.0.0 | © 2026 MediTrace Systems</span>
+          </div>
+        </footer>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  const BASE_URL = "http://localhost:5000";
+
+  // Auth guard
+  const token  = localStorage.getItem("meditrace_token");
+  const expiry = localStorage.getItem("meditrace_token_expiry");
+  if (!token || !expiry || Date.now() > parseInt(expiry)) { localStorage.clear(); window.location.href = "index.html"; }
+  function logout() { localStorage.clear(); window.location.href = "index.html"; }
+
+  async function apiFetch(endpoint) {
+    const res = await fetch(`${BASE_URL}${endpoint}`, {
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` }
+    });
+    if (res.status === 401) { logout(); return null; }
+    return res.json();
+  }
+
+  // State
+  let cachedRows   = [];
+  let activeFilter = "all";
+
+  // ── Load data from two backend endpoints and merge ─────────────────────────
+  // /api/sales/restock-recommendations gives us: medicineId, totalSold, dailyAverage, daysOfStockLeft, recommendedOrder, priority, currentStock
+  // /api/sales/velocity gives us: medicineId, totalSold, salesCount, dailyAverage
+  // /api/inventory gives us: medication name, totalStock, stockStatus
+  async function refreshAll() {
+    // Show skeletons
+    document.getElementById("rowsTbody").innerHTML = `
+      <tr><td colspan="6" class="px-6 py-4"><div class="skeleton h-10 rounded-xl"></div></td></tr>
+      <tr><td colspan="6" class="px-6 py-4"><div class="skeleton h-10 rounded-xl"></div></td></tr>
+      <tr><td colspan="6" class="px-6 py-4"><div class="skeleton h-10 rounded-xl"></div></td></tr>`;
+
+    const days = document.getElementById("daysSelect").value;
+
+    const [restockRaw, velocityRaw, inventoryData] = await Promise.all([
+      apiFetch(`/api/sales/restock-recommendations?days=${days}`),
+      apiFetch(`/api/sales/velocity?days=${days}`),
+      apiFetch("/api/inventory")
+    ]);
+    // Unwrap envelope if backend returns { recommendations: [] } or { velocity: [] } etc.
+    const restockData  = Array.isArray(restockRaw)  ? restockRaw  : (restockRaw?.recommendations  || restockRaw?.data || []);
+    const velocityData = Array.isArray(velocityRaw) ? velocityRaw : (velocityRaw?.velocity || velocityRaw?.data || []);
+
+    if (!restockData && !velocityData) {
+      document.getElementById("rowsTbody").innerHTML = `
+        <tr><td colspan="6" class="px-6 py-12 text-center">
+          <p class="font-extrabold text-textDark dark:text-white">No sales data yet</p>
+          <p class="text-sm text-textMuted dark:text-textMutedDark mt-1">Record some sales first to generate forecasting analytics.</p>
+        </td></tr>`;
+      return;
+    }
+
+    // Build lookup maps
+    const medMap = {};
+    (inventoryData?.inventory || []).forEach(m => { medMap[m.medicineId] = m; });
+
+    const velocityMap = {};
+    (velocityData || []).forEach(v => { velocityMap[v.medicineId] = v; });
+
+    // Build rows from restock recommendations (these already have the richest data)
+    cachedRows = (restockData || []).map(r => {
+      const med      = medMap[r.medicineId] || {};
+      const velocity = velocityMap[r.medicineId] || {};
+      return {
+        medicineId:       r.medicineId,
+        name:             med.name || r.medicineId.slice(0, 12) + "…",
+        genericName:      med.genericName || "—",
+        isSPC:            med.isSPC || false,
+        // Coerce all numeric fields — backend may return strings
+        currentStock:     Number(r.currentStock ?? med.totalStock ?? 0),
+        totalSold:        Number(r.totalSold || velocity.totalSold || 0),
+        dailyAverage:     Number(r.dailyAverage || velocity.dailyAverage || 0),
+        daysOfStockLeft:  r.daysOfStockLeft != null ? Number(r.daysOfStockLeft) : null,
+        recommendedOrder: Number(r.recommendedOrder || 0),
+        priority:         r.priority || "LOW",
+      };
+    });
+
+    // Also add medications that have inventory but zero sales (not in restock list)
+    const restockIds = new Set(cachedRows.map(r => r.medicineId));
+    (inventoryData?.inventory || []).forEach(m => {
+      if (!restockIds.has(m.medicineId) && m.totalStock > 0) {
+        cachedRows.push({
+          medicineId:       m.medicineId,
+          name:             m.name,
+          genericName:      m.genericName || "—",
+          isSPC:            m.isSPC || false,
+          currentStock:     Number(m.totalStock || 0),
+          totalSold:        0,
+          dailyAverage:     0,
+          daysOfStockLeft:  null,
+          recommendedOrder: 0,
+          priority:         "LOW",
+        });
+      }
+    });
+
+    // Update KPIs
+    const fast    = cachedRows.filter(r => r.dailyAverage >= 3).length;
+    const slow    = cachedRows.filter(r => r.dailyAverage > 0 && r.dailyAverage < 1).length;
+    const restock = cachedRows.filter(r => r.priority === "HIGH").length;
+
+    document.getElementById("kpiFast").textContent    = fast;
+    document.getElementById("kpiSlow").textContent    = slow;
+    document.getElementById("kpiRestock").textContent = restock;
+    document.getElementById("kpiTotal").textContent   = cachedRows.length;
+
+    applyFilters();
+  }
+
+  // ── Filter + search ────────────────────────────────────────────────────────
+  function setFilter(type) {
+    activeFilter = type;
+    const active   = "bg-brandBlue text-white";
+    const inactive = "bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark text-textDark dark:text-white hover:bg-white transition";
+    ["all","fast","slow","restock"].forEach(t => {
+      const id = `btn${t.charAt(0).toUpperCase() + t.slice(1)}`;
+      const el = document.getElementById(id);
+      if (el) el.className = `px-4 py-2 rounded-full text-sm font-extrabold ${t === type ? active : inactive}`;
+    });
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const q = (document.getElementById("searchInput")?.value || "").trim().toLowerCase();
+    let rows = cachedRows.slice();
+
+    if (activeFilter === "fast")    rows = rows.filter(r => r.dailyAverage >= 3);
+    if (activeFilter === "slow")    rows = rows.filter(r => r.dailyAverage > 0 && r.dailyAverage < 1);
+    if (activeFilter === "restock") rows = rows.filter(r => r.priority === "HIGH");
+
+    if (q) rows = rows.filter(r => r.name.toLowerCase().includes(q) || r.genericName.toLowerCase().includes(q));
+
+    renderTable(rows);
+  }
+
+  // ── Render table ───────────────────────────────────────────────────────────
+  function renderTable(rows) {
+    const tbody = document.getElementById("rowsTbody");
+
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-12 text-center">
+        <span class="material-symbols-outlined text-4xl text-textMuted dark:text-textMutedDark">analytics</span>
+        <p class="font-extrabold text-textDark dark:text-white mt-2">No matching data</p>
+        <p class="text-sm text-textMuted dark:text-textMutedDark mt-1">Try a different filter or record more sales.</p>
+      </td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = rows.map(r => {
+      const daysText  = r.daysOfStockLeft === null || r.daysOfStockLeft === undefined
+        ? "—"
+        : r.daysOfStockLeft > 999 ? "∞" : `${Math.round(r.daysOfStockLeft)} days`;
+
+      const velocityText = r.dailyAverage > 0 ? `${r.dailyAverage.toFixed(2)} / day` : "No sales";
+
+      const velocityIcon = r.dailyAverage >= 3
+        ? `<span class="material-symbols-outlined text-green-500 text-sm">trending_up</span>`
+        : r.dailyAverage >= 1
+          ? `<span class="material-symbols-outlined text-brandBlue text-sm">trending_flat</span>`
+          : `<span class="material-symbols-outlined text-amber-500 text-sm">trending_down</span>`;
+
+      const priorityPill = r.priority === "HIGH"
+        ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/40"><span class="material-symbols-outlined text-xs">warning</span>HIGH - Restock</span>`
+        : r.priority === "MEDIUM"
+          ? `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40"><span class="material-symbols-outlined text-xs">schedule</span>MEDIUM</span>`
+          : `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-900/40"><span class="material-symbols-outlined text-xs">check_circle</span>LOW</span>`;
+
+      const spcBadge = r.isSPC
+        ? `<span class="ml-1 text-[10px] font-extrabold bg-brandBlue/10 dark:bg-brandBlue/20 text-brandBlue px-2 py-0.5 rounded-full">SPC</span>`
+        : "";
+
+      const stockClass = r.currentStock === 0
+        ? "text-brandRed font-black"
+        : r.currentStock < 20
+          ? "text-amber-600 dark:text-amber-400 font-black"
+          : "text-textDark dark:text-white font-black";
+
+      const daysClass = r.priority === "HIGH"
+        ? "text-brandRed font-black"
+        : r.priority === "MEDIUM"
+          ? "text-amber-600 dark:text-amber-400 font-bold"
+          : "text-textDark dark:text-white font-bold";
+
+      return `<tr class="hover:bg-white/60 dark:hover:bg-white/5 transition">
+        <td class="px-6 py-4">
+          <div class="flex items-center gap-2">
+            <p class="font-black text-textDark dark:text-white">${esc(r.name)}${spcBadge}</p>
+          </div>
+          <p class="text-xs text-textMuted dark:text-textMutedDark mt-0.5">${esc(r.genericName)} · Sold: ${r.totalSold} units</p>
+        </td>
+        <td class="px-6 py-4 text-sm ${stockClass}">${r.currentStock}</td>
+        <td class="px-6 py-4">
+          <div class="flex items-center gap-2">
+            ${velocityIcon}
+            <span class="text-sm font-bold text-textDark dark:text-white">${velocityText}</span>
+          </div>
+        </td>
+        <td class="px-6 py-4 text-sm ${daysClass}">${daysText}</td>
+        <td class="px-6 py-4">${priorityPill}</td>
+        <td class="px-6 py-4 text-right text-sm font-black ${r.recommendedOrder > 0 ? "text-brandBlue" : "text-textMuted dark:text-textMutedDark"}">${r.recommendedOrder > 0 ? `${r.recommendedOrder} units` : "—"}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  function esc(str) { return String(str ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+  // ── Theme ──────────────────────────────────────────────────────────────────
+  function applyTheme(theme) {
+    ["themeIconTop","themeIconSide"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = theme === "dark" ? "light_mode" : "dark_mode"; });
+    theme === "dark" ? document.documentElement.classList.add("dark") : document.documentElement.classList.remove("dark");
+    localStorage.setItem("meditrace_theme", theme);
+  }
+  (function(){ const s = localStorage.getItem("meditrace_theme"); applyTheme(s || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")); })();
+  ["themeToggleTop","themeToggleSide"].forEach(id => { const b = document.getElementById(id); if (b) b.addEventListener("click", () => applyTheme(document.documentElement.classList.contains("dark") ? "light" : "dark")); });
+
+  // ── Sidebar active ─────────────────────────────────────────────────────────
+  (function(){ const active = document.body.getAttribute("data-page"); document.querySelectorAll(".navbtn").forEach(a => { const k = a.getAttribute("data-nav"); const i = a.querySelector(".navicon"); a.classList.remove("bg-brandBlue/10","dark:bg-brandBlue/15","border-black/5","dark:border-borderDark"); if (i) i.classList.remove("text-brandBlue"); if (k === active) { a.classList.add("bg-brandBlue/10","dark:bg-brandBlue/15","border-black/5","dark:border-borderDark"); if (i) { i.classList.remove("text-textMuted","dark:text-textMutedDark"); i.classList.add("text-brandBlue"); } } }); })();
+
+  (function(){ if (localStorage.getItem("meditrace_role") === "owner") { const el = document.getElementById("navUsersLink"); if (el) el.style.display = ""; } })();
+  // Init
+  setFilter("all");
+  refreshAll();
+</script>
+</body>
+</html>

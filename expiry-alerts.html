@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>MediTrace - Expiry Alerts</title>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brandRed: "#cc0000", brandBlue: "#455b94",
+            pageBg: "#ffffff", cardBg: "#f3f4f6", panelBg: "#f7f8fa",
+            textDark: "#111418", textMuted: "#637588",
+            pageBgDark: "#0b1220", cardBgDark: "#0f1a2b", panelBgDark: "#0c1626",
+            textMutedDark: "#9fb0c8", borderDark: "#1f2c45",
+          },
+          fontFamily: { display: ["Public Sans", "sans-serif"] },
+          borderRadius: { xl: "1.25rem", "2xl": "1.5rem" },
+          boxShadow: { soft: "0 30px 80px rgba(17, 24, 39, 0.18)" },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { font-family: "Public Sans", sans-serif; }
+    .skeleton { animation: pulse 1.5s ease-in-out infinite; background: linear-gradient(90deg, rgba(0,0,0,0.06) 25%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.06) 75%); background-size: 200% 100%; }
+    .dark .skeleton { background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%); background-size: 200% 100%; }
+    @keyframes pulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  </style>
+</head>
+
+<body data-page="expiry" class="min-h-screen bg-pageBg dark:bg-pageBgDark font-display">
+<div class="min-h-screen flex">
+
+  <!-- Sidebar -->
+  <aside class="hidden lg:flex w-[92px] p-4">
+    <div class="w-full rounded-[24px] bg-cardBg dark:bg-cardBgDark shadow-soft border border-black/5 dark:border-borderDark flex flex-col items-center py-4 gap-4">
+      <a href="dashboard.html" class="group relative h-12 w-12 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center">
+        <span class="material-symbols-outlined text-brandRed text-2xl" style="font-variation-settings:'FILL' 1">medical_services</span>
+        <span class="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Dashboard</span>
+      </a>
+      <div class="h-px w-10 bg-black/10 dark:bg-borderDark my-1"></div>
+      <nav class="flex flex-col items-center gap-2">
+        <a href="dashboard.html" data-nav="dashboard" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">home</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Dashboard</span>
+        </a>
+        <a href="sales.html" data-nav="sales" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">point_of_sale</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Sales (FEFO)</span>
+        </a>
+        <a href="inventory.html" data-nav="inventory" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">inventory_2</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Inventory</span>
+        </a>
+        <a href="expiry-alerts.html" data-nav="expiry" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">warning</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Expiry Alerts</span>
+        </a>
+        <a href="nmra-reports.html" data-nav="nmra" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">description</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">NMRA Reports</span>
+        </a>
+        <a href="forecasting.html" data-nav="forecast" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">analytics</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Forecasting</span>
+        </a>
+        <a href="users.html" data-nav="users" id="navUsersLink" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10" style="display:none">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">manage_accounts</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">User Management</span>
+        </a>
+        <a href="account.html" data-nav="account" class="navbtn group relative h-11 w-11 rounded-2xl grid place-items-center border transition border-transparent hover:border-black/10 dark:hover:border-borderDark hover:bg-white/70 dark:hover:bg-white/10">
+          <span class="material-symbols-outlined navicon text-textMuted dark:text-textMutedDark">account_circle</span>
+          <span class="tooltip pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">My Account</span>
+        </a>
+      </nav>
+      <div class="mt-auto flex flex-col items-center gap-2">
+        <button id="themeToggleSide" class="group relative h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center hover:bg-white transition" aria-label="Toggle dark mode">
+          <span id="themeIconSide" class="material-symbols-outlined text-textDark dark:text-white">dark_mode</span>
+          <span class="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Toggle theme</span>
+        </button>
+        <button class="group relative h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center hover:bg-white transition" onclick="logout()" aria-label="Logout">
+          <span class="material-symbols-outlined text-textDark dark:text-white">logout</span>
+          <span class="pointer-events-none absolute left-full ml-3 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-extrabold bg-textDark text-white shadow-lg opacity-0 translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition dark:bg-white dark:text-textDark">Logout</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="flex-1">
+    <header class="sticky top-0 z-40 px-6 lg:px-10 py-4">
+      <div class="rounded-[24px] bg-cardBg dark:bg-cardBgDark shadow-soft border border-black/5 dark:border-borderDark px-5 py-4">
+        <div class="flex items-center justify-between gap-4">
+          <a href="dashboard.html" class="flex items-center gap-3">
+            <div class="h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center">
+              <span class="material-symbols-outlined text-brandRed text-2xl" style="font-variation-settings:'FILL' 1">medical_services</span>
+            </div>
+            <div class="hidden sm:block">
+              <p class="text-textDark dark:text-white font-black leading-tight">MediTrace</p>
+              <p class="text-[11px] text-textMuted dark:text-textMutedDark -mt-0.5">Expiry Alerts</p>
+            </div>
+          </a>
+          <div class="flex items-center gap-2">
+            <button id="themeToggleTop" class=" h-11 w-11 rounded-2xl bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark grid place-items-center hover:bg-white transition">
+              <span id="themeIconTop" class="material-symbols-outlined text-textDark dark:text-white">dark_mode</span>
+            </button>
+            <button onclick="logout()" class="h-11 px-5 rounded-full bg-brandRed text-white font-extrabold text-sm hover:bg-brandRed/90 transition">Logout</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="px-6 lg:px-10 pb-10">
+      <div class="max-w-[1200px] mx-auto">
+
+        <div class="flex items-center gap-2 text-sm text-textMuted dark:text-textMutedDark mt-1">
+          <a href="dashboard.html" class="hover:text-brandBlue transition font-semibold">Dashboard</a>
+          <span class="opacity-60">/</span>
+          <span class="text-textDark dark:text-white font-extrabold">Expiry Alerts</span>
+        </div>
+
+        <div class="flex flex-wrap justify-between items-end gap-4 mt-4">
+          <div>
+            <h1 class="text-3xl font-black text-textDark dark:text-white">Expiry Alerts</h1>
+          </div>
+          <button onclick="loadAlerts()" class="h-11 px-4 rounded-full bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark text-textDark dark:text-white font-bold text-sm hover:bg-white transition flex items-center gap-2">
+            <span class="material-symbols-outlined text-brandBlue">refresh</span>Refresh
+          </button>
+        </div>
+
+        <!-- KPI cards -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-6">
+            <p class="text-sm font-extrabold text-textMuted dark:text-textMutedDark uppercase">Total Alerts</p>
+            <p id="kpiTotal" class="text-3xl font-black text-textDark dark:text-white mt-3">--</p>
+            <p class="text-xs text-textMuted dark:text-textMutedDark font-medium mt-1">Near-expiry + expired</p>
+          </div>
+          <div class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-6">
+            <p class="text-sm font-extrabold text-textMuted dark:text-textMutedDark uppercase">Near-Expiry</p>
+            <p id="kpiNear" class="text-3xl font-black text-amber-500 mt-3">--</p>
+            <p class="text-xs text-textMuted dark:text-textMutedDark font-medium mt-1">Next 90 days</p>
+          </div>
+          <div class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-6">
+            <p class="text-sm font-extrabold text-textMuted dark:text-textMutedDark uppercase">Expired</p>
+            <p id="kpiExpired" class="text-3xl font-black text-brandRed mt-3">--</p>
+            <p class="text-xs text-textMuted dark:text-textMutedDark font-medium mt-1">Immediate action required</p>
+          </div>
+        </section>
+
+        <!-- Table section -->
+        <section class="mt-6 rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft overflow-hidden">
+          <div class="p-4 border-b border-black/5 dark:border-borderDark flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <button id="btnAll"     onclick="setFilter('all')"     class="px-4 h-10 rounded-full text-sm font-extrabold">All</button>
+              <button id="btnNear"    onclick="setFilter('near')"    class="px-4 h-10 rounded-full text-sm font-extrabold">Near-Expiry</button>
+              <button id="btnExpired" onclick="setFilter('expired')" class="px-4 h-10 rounded-full text-sm font-extrabold">Expired</button>
+            </div>
+            <button onclick="writeOffSelected()" class="px-4 h-10 rounded-full bg-brandRed text-white text-sm font-extrabold hover:bg-brandRed/90 transition flex items-center gap-2">
+              <span class="material-symbols-outlined text-base">delete</span>Write-Off Selected
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left">
+              <thead class="bg-white/60 dark:bg-white/5">
+                <tr>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">
+                    <input id="selectAll" type="checkbox" class="rounded border-black/10 dark:border-borderDark text-brandBlue focus:ring-brandBlue" onchange="toggleSelectAll(this.checked)" />
+                  </th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Medicine</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Batch No.</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Expiry Date</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Qty</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase">Status</th>
+                  <th class="px-6 py-4 text-xs font-black text-textMuted dark:text-textMutedDark uppercase text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody id="rows" class="divide-y divide-black/5 dark:divide-borderDark">
+                <tr><td colspan="7" class="px-6 py-4"><div class="skeleton h-10 rounded-xl"></div></td></tr>
+                <tr><td colspan="7" class="px-6 py-4"><div class="skeleton h-10 rounded-xl"></div></td></tr>
+                <tr><td colspan="7" class="px-6 py-4"><div class="skeleton h-10 rounded-xl"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="px-6 py-4 border-t border-black/5 dark:border-borderDark text-sm text-textMuted dark:text-textMutedDark">
+            Write-offs are permanently recorded in the audit trail for NMRA compliance.
+          </div>
+        </section>
+
+        <!-- Write-off modal -->
+        <div id="writeOffModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.55)">
+          <div class="w-full max-w-md rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft p-6">
+            <h3 class="text-lg font-black text-textDark dark:text-white">Write-Off Stock</h3>
+            <p id="writeOffBatchInfo" class="text-sm text-textMuted dark:text-textMutedDark mt-1 mb-4"></p>
+            <div class="flex flex-col gap-4">
+              <label class="flex flex-col gap-1">
+                <span class="text-sm font-semibold text-textDark dark:text-white">Quantity to write off</span>
+                <input id="writeOffQty" type="number" min="1"
+                  class="form-input w-full h-11 rounded-full px-4 bg-white dark:bg-pageBgDark border border-black/10 dark:border-borderDark text-textDark dark:text-white focus:outline-none focus:ring-4 focus:ring-brandRed/15 focus:border-brandRed" />
+              </label>
+              <label class="flex flex-col gap-1">
+                <span class="text-sm font-semibold text-textDark dark:text-white">Reason</span>
+                <select id="writeOffReason"
+                  class="form-select w-full h-11 rounded-full px-4 bg-white dark:bg-pageBgDark border border-black/10 dark:border-borderDark text-textDark dark:text-white focus:outline-none focus:ring-4 focus:ring-brandRed/15 focus:border-brandRed">
+                  <option value="Expired - disposal">Expired - disposal</option>
+                  <option value="Near expiry - unsellable">Near expiry - unsellable</option>
+                  <option value="Damaged stock">Damaged stock</option>
+                  <option value="NMRA recall">NMRA recall</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+            </div>
+            <div id="writeOffError" class="hidden mt-3 flex items-center gap-2 rounded-2xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 px-4 py-3">
+              <span class="material-symbols-outlined text-brandRed text-base">error</span>
+              <p id="writeOffErrorText" class="text-sm font-semibold text-brandRed"></p>
+            </div>
+            <div class="mt-6 flex gap-3">
+              <button onclick="closeWriteOffModal()" class="flex-1 h-11 rounded-full border border-black/10 dark:border-borderDark font-extrabold text-sm text-textDark dark:text-white hover:bg-white dark:hover:bg-white/10 transition">Cancel</button>
+              <button id="writeOffConfirmBtn" onclick="confirmWriteOff()" class="flex-1 h-11 rounded-full bg-brandRed text-white font-extrabold text-sm hover:bg-brandRed/90 transition">Confirm Write-Off</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compliance note -->
+        <section class="mt-6 rounded-[24px] bg-brandBlue/10 dark:bg-brandBlue/15 border border-black/10 dark:border-borderDark shadow-soft p-5 flex items-start gap-3">
+          <span class="material-symbols-outlined text-brandBlue">info</span>
+          <div>
+            <p class="text-sm font-extrabold text-brandBlue">Compliance Protocol</p>
+            <p class="text-sm text-brandBlue/90 font-medium mt-1">Write-offs are permanently logged to the audit trail for NMRA compliance. Ensure expired stock is physically quarantined before confirming write-off.</p>
+          </div>
+        </section>
+
+        <footer class="mt-8 pb-10 text-xs text-textMuted dark:text-textMutedDark">
+          <div class="rounded-[24px] bg-cardBg dark:bg-cardBgDark border border-black/5 dark:border-borderDark shadow-soft px-5 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2"><span class="h-2 w-2 bg-green-500 rounded-full"></span><span class="font-semibold">System status: Connected</span></div>
+            <span class="font-semibold">v1.0.0 | © 2026 MediTrace Systems</span>
+          </div>
+        </footer>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+  const BASE_URL = "http://localhost:5000";
+
+  // Auth guard
+  const token  = localStorage.getItem("meditrace_token");
+  const expiry = localStorage.getItem("meditrace_token_expiry");
+  if (!token || !expiry || Date.now() > parseInt(expiry)) { localStorage.clear(); window.location.href = "index.html"; }
+  function logout() { localStorage.clear(); window.location.href = "index.html"; }
+
+  async function apiFetch(endpoint, options = {}) {
+    const res = await fetch(`${BASE_URL}${endpoint}`, {
+      ...options,
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}`, ...(options.headers || {}) }
+    });
+    if (res.status === 401) { logout(); return null; }
+    return res.json();
+  }
+
+  let allBatches = [];
+  let currentFilter = "all";
+  let writeOffTarget = null;
+
+  async function loadAlerts() {
+    document.getElementById("rows").innerHTML = `
+      <tr><td colspan="7" class="px-6 py-4"><div class="skeleton h-10 rounded-xl"></div></td></tr>
+      <tr><td colspan="7" class="px-6 py-4"><div class="skeleton h-10 rounded-xl"></div></td></tr>
+      <tr><td colspan="7" class="px-6 py-4"><div class="skeleton h-10 rounded-xl"></div></td></tr>`;
+
+    const [nearData, expiredData] = await Promise.all([
+      apiFetch("/api/batches/near-expiry?days=90"),
+      apiFetch("/api/batches/expired")
+    ]);
+
+    const near    = (nearData    || []).map(b => ({ ...b, _type: "near" }));
+    const expired = (expiredData || []).map(b => ({ ...b, _type: "expired" }));
+
+    // Deduplicate — expired takes priority
+    const seen = new Set();
+    allBatches = [];
+    for (const b of [...expired, ...near]) {
+      if (!seen.has(b.batchId)) { seen.add(b.batchId); allBatches.push(b); }
+    }
+    allBatches.sort((a, b) => {
+      if (a._type === "expired" && b._type !== "expired") return -1;
+      if (a._type !== "expired" && b._type === "expired") return 1;
+      return new Date(a.expiryDate) - new Date(b.expiryDate);
+    });
+
+    document.getElementById("kpiTotal").textContent   = near.length + expired.length;
+    document.getElementById("kpiNear").textContent    = near.length;
+    document.getElementById("kpiExpired").textContent = expired.length;
+
+    renderRows();
+  }
+
+  async function renderRows() {
+    const rowsEl = document.getElementById("rows");
+    document.getElementById("selectAll").checked = false;
+
+    const shown = currentFilter === "all" ? allBatches : allBatches.filter(b => b._type === currentFilter);
+
+    if (shown.length === 0) {
+      rowsEl.innerHTML = `<tr><td colspan="7" class="px-6 py-12 text-center">
+        <span class="material-symbols-outlined text-4xl text-textMuted dark:text-textMutedDark">check_circle</span>
+        <p class="font-extrabold text-textDark dark:text-white mt-2">No alerts found</p>
+        <p class="text-sm text-textMuted dark:text-textMutedDark mt-1">${currentFilter === "all" ? "All batches are within acceptable ranges." : `No ${currentFilter} batches.`}</p>
+      </td></tr>`;
+      return;
+    }
+
+    // Get medication names
+    const medsData = await apiFetch("/api/medications") || [];
+    const medMap = {};
+    medsData.forEach(m => { medMap[m.medicineId] = m.name; });
+
+    rowsEl.innerHTML = shown.map(b => {
+      const medName   = medMap[b.medicineId] || b.medicineId.slice(0, 8) + "…";
+      const isExpired = b._type === "expired";
+      const diff      = Math.ceil((new Date(b.expiryDate) - new Date()) / 86400000);
+      const daysText  = diff < 0 ? `${Math.abs(diff)}d ago` : diff === 0 ? "Today" : `${diff}d left`;
+
+      const pill = isExpired
+        ? `<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold bg-brandRed/10 dark:bg-brandRed/15 text-brandRed border border-brandRed/20"><span class="material-symbols-outlined text-[13px]">error</span>Expired</span>`
+        : `<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/20"><span class="material-symbols-outlined text-[13px]">warning</span>Near-Expiry</span>`;
+
+      return `<tr class="hover:bg-white/60 dark:hover:bg-white/5 transition">
+        <td class="px-6 py-4"><input type="checkbox" class="rowChk rounded border-black/10 dark:border-borderDark text-brandBlue focus:ring-brandBlue" data-batch-id="${b.batchId}" data-batch-number="${esc(b.batchNumber)}" data-max-qty="${b.quantityAvailable}" /></td>
+        <td class="px-6 py-4"><p class="font-extrabold text-textDark dark:text-white">${esc(medName)}</p><p class="text-xs text-textMuted dark:text-textMutedDark">ID: ${b.medicineId.slice(0,8)}…</p></td>
+        <td class="px-6 py-4 font-mono text-sm text-textMuted dark:text-textMutedDark">${esc(b.batchNumber)}</td>
+        <td class="px-6 py-4"><p class="${isExpired ? "text-brandRed" : "text-amber-600 dark:text-amber-400"} font-extrabold text-sm">${esc(b.expiryDate)}</p><p class="text-xs text-textMuted dark:text-textMutedDark">${daysText}</p></td>
+        <td class="px-6 py-4 text-sm font-bold text-textDark dark:text-white">${b.quantityAvailable}</td>
+        <td class="px-6 py-4">${pill}</td>
+        <td class="px-6 py-4 text-right">
+          <button onclick="openWriteOffModal('${b.batchId}','${esc(b.batchNumber)}',${b.quantityAvailable},'${esc(medName)}')" class="text-brandRed font-extrabold text-sm hover:underline flex items-center gap-1 ml-auto">
+            <span class="material-symbols-outlined text-base">delete</span>Write-Off
+          </button>
+        </td>
+      </tr>`;
+    }).join("");
+  }
+
+  function setFilter(type) {
+    currentFilter = type;
+    const active   = "bg-brandBlue text-white";
+    const inactive = "bg-white/70 dark:bg-white/10 border border-black/10 dark:border-borderDark text-textDark dark:text-white hover:bg-white transition";
+    ["all","near","expired"].forEach(t => {
+      document.getElementById(`btn${t.charAt(0).toUpperCase()+t.slice(1)}`).className = `px-4 h-10 rounded-full text-sm font-extrabold ${t === type ? active : inactive}`;
+    });
+    renderRows();
+  }
+
+  function toggleSelectAll(checked) { document.querySelectorAll(".rowChk").forEach(c => c.checked = checked); }
+
+  function openWriteOffModal(batchId, batchNumber, maxQty, medName) {
+    writeOffTarget = { batchId, batchNumber, maxQty };
+    document.getElementById("writeOffBatchInfo").textContent = `${medName} · Batch ${batchNumber} · ${maxQty} units available`;
+    document.getElementById("writeOffQty").value = maxQty;
+    document.getElementById("writeOffQty").max   = maxQty;
+    document.getElementById("writeOffError").classList.add("hidden");
+    document.getElementById("writeOffModal").classList.remove("hidden");
+  }
+
+  function closeWriteOffModal() { writeOffTarget = null; document.getElementById("writeOffModal").classList.add("hidden"); }
+
+  async function confirmWriteOff() {
+    if (!writeOffTarget) return;
+    const qty    = parseInt(document.getElementById("writeOffQty").value);
+    const reason = document.getElementById("writeOffReason").value;
+    const errEl  = document.getElementById("writeOffError");
+    const errTxt = document.getElementById("writeOffErrorText");
+
+    if (!qty || qty < 1)            { errTxt.textContent = "Enter a valid quantity."; errEl.classList.remove("hidden"); return; }
+    if (qty > writeOffTarget.maxQty){ errTxt.textContent = `Cannot exceed ${writeOffTarget.maxQty} available.`; errEl.classList.remove("hidden"); return; }
+
+    const btn = document.getElementById("writeOffConfirmBtn");
+    btn.textContent = "Processing…"; btn.disabled = true;
+
+    const result = await apiFetch(`/api/batches/${writeOffTarget.batchId}/write-off`, {
+      method: "POST",
+      body: JSON.stringify({ quantityWrittenOff: qty, reason })
+    });
+
+    btn.textContent = "Confirm Write-Off"; btn.disabled = false;
+
+    if (!result || result.error) { errTxt.textContent = result?.error || "Write-off failed."; errEl.classList.remove("hidden"); return; }
+
+    closeWriteOffModal();
+    showToast(`Written off ${qty} units from batch ${writeOffTarget.batchNumber}. Financial loss logged: LKR ${result.financialLoss}.`);
+    loadAlerts();
+  }
+
+  async function writeOffSelected() {
+    const selected = Array.from(document.querySelectorAll(".rowChk:checked"));
+    if (selected.length === 0) { showToast("Select at least one row.", "error"); return; }
+    if (!confirm(`Write off ALL remaining stock from ${selected.length} selected batch(es)? This cannot be undone.`)) return;
+
+    let count = 0;
+    for (const chk of selected) {
+      const res = await apiFetch(`/api/batches/${chk.dataset.batchId}/write-off`, {
+        method: "POST",
+        body: JSON.stringify({ quantityWrittenOff: parseInt(chk.dataset.maxQty), reason: "Bulk write-off - expired stock" })
+      });
+      if (res && !res.error) count++;
+    }
+    showToast(`${count} of ${selected.length} batch(es) written off successfully.`);
+    loadAlerts();
+  }
+
+  function showToast(msg, type = "success") {
+    const t = document.createElement("div");
+    t.className = `fixed bottom-6 right-6 z-50 ${type === "error" ? "bg-brandRed" : "bg-brandBlue"} text-white px-5 py-3 rounded-2xl font-bold text-sm shadow-soft max-w-sm`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 4500);
+  }
+
+  function esc(str) { return String(str ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+  // Theme
+  function applyTheme(theme) {
+    ["themeIconTop","themeIconSide"].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = theme === "dark" ? "light_mode" : "dark_mode"; });
+    theme === "dark" ? document.documentElement.classList.add("dark") : document.documentElement.classList.remove("dark");
+    localStorage.setItem("meditrace_theme", theme);
+  }
+  (function(){ const s = localStorage.getItem("meditrace_theme"); applyTheme(s || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")); })();
+  ["themeToggleTop","themeToggleSide"].forEach(id => { const b = document.getElementById(id); if (b) b.addEventListener("click", () => applyTheme(document.documentElement.classList.contains("dark") ? "light" : "dark")); });
+
+  // Sidebar active
+  (function(){ const active = document.body.getAttribute("data-page"); document.querySelectorAll(".navbtn").forEach(a => { const k = a.getAttribute("data-nav"); const i = a.querySelector(".navicon"); a.classList.remove("bg-brandBlue/10","dark:bg-brandBlue/15","border-black/5","dark:border-borderDark"); if (i) i.classList.remove("text-brandBlue"); if (k === active) { a.classList.add("bg-brandBlue/10","dark:bg-brandBlue/15","border-black/5","dark:border-borderDark"); if (i) { i.classList.remove("text-textMuted","dark:text-textMutedDark"); i.classList.add("text-brandBlue"); } } }); })();
+
+  (function(){ if (localStorage.getItem("meditrace_role") === "owner") { const el = document.getElementById("navUsersLink"); if (el) el.style.display = ""; } })();
+  setFilter("all");
+  loadAlerts();
+</script>
+</body>
+</html>
