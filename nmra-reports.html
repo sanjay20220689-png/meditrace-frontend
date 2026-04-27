@@ -474,8 +474,30 @@
     if (!from || !to) { showToast("Please select both dates.", "error"); return; }
     if (from > to)    { showToast("From date cannot be after To date.", "error"); return; }
     showToast("Fetching sales data...");
-    const salesData = await apiFetch(`/api/sales?startDate=${from}&endDate=${to}`);
-    const sales = Array.isArray(salesData) ? salesData : (salesData?.sales || salesData?.data || []);
+
+    // Fetch all sales — filter by date on the frontend using saleDateTime
+    // (backend date query params may not be implemented)
+    const salesData = await apiFetch("/api/sales");
+    let allSales = Array.isArray(salesData) ? salesData : (salesData?.sales || salesData?.data || []);
+
+    // Filter by selected date range using saleDateTime field
+    const fromMs = new Date(from + "T00:00:00").getTime();
+    const toMs   = new Date(to   + "T23:59:59").getTime();
+
+    const sales = allSales.filter(sale => {
+      const raw = sale.saleDateTime || sale.createdAt || sale.date || sale.timestamp || null;
+      if (!raw) return false;
+      let d;
+      if (typeof raw === "object" && raw !== null) {
+        const secs = raw._seconds ?? raw.seconds;
+        d = typeof secs === "number" ? new Date(secs * 1000) : null;
+      } else {
+        d = new Date(raw);
+      }
+      if (!d || isNaN(d.getTime())) return false;
+      return d.getTime() >= fromMs && d.getTime() <= toMs;
+    });
+
     if (!sales.length) { showToast(`No sales found between ${from} and ${to}.`, "error"); return; }
 
     const batchMap = {};
@@ -483,40 +505,31 @@
 
     const rows = [];
     sales.forEach(sale => {
-      // Your Firestore uses saleDateTime — check all possible field names
+      // Parse saleDateTime — confirmed ISO string in your Firestore
       const rawDate = sale.saleDateTime || sale.createdAt || sale.date || sale.timestamp || null;
       let saleDate = "";
       if (rawDate) {
-        let d;
-        // Firestore Timestamp object: { _seconds: N } or { seconds: N }
-        if (typeof rawDate === "object" && rawDate !== null) {
-          const secs = rawDate._seconds ?? rawDate.seconds;
-          if (typeof secs === "number") d = new Date(secs * 1000);
-        } else if (typeof rawDate === "number") {
-          d = new Date(rawDate);
-        } else {
-          d = new Date(rawDate);
-        }
-        if (d && !isNaN(d.getTime())) saleDate = d.toISOString().split("T")[0];
+        const d = new Date(rawDate);
+        if (!isNaN(d.getTime())) saleDate = d.toISOString().split("T")[0];
       }
 
-      // Your Firestore items use: batchId, medicineId, quantity, unitPrice, lineTotal
+      // Items use: batchId, medicineId, quantity, unitPrice, lineTotal
       (sale.items || []).forEach(item => {
         const batch = batchMap[item.batchId] || {};
-        const qty      = item.quantity ?? item.qty ?? "";
-        const unit     = item.unitPrice != null ? Number(item.unitPrice).toFixed(2) : "";
-        const total    = item.lineTotal != null
+        const qty   = item.quantity ?? item.qty ?? "";
+        const unit  = item.unitPrice != null ? Number(item.unitPrice).toFixed(2) : "";
+        const total = item.lineTotal != null
           ? Number(item.lineTotal).toFixed(2)
           : (item.unitPrice != null && qty !== ""
               ? (Number(item.unitPrice) * Number(qty)).toFixed(2)
               : "");
         rows.push({
-          saleId:      sale.saleId      || "",
+          saleId:      sale.saleId           || "",
           date:        saleDate,
-          medicine:    batch._medName   || item.medicineId || "",
-          batchNumber: batch.batchNumber|| item.batchId    || "",
-          batchExpiry: batch.expiryDate || "",
-          supplier:    batch._supplierName || "",
+          medicine:    batch._medName        || item.medicineId || "",
+          batchNumber: batch.batchNumber     || item.batchId    || "",
+          batchExpiry: batch.expiryDate      || "",
+          supplier:    batch._supplierName   || "",
           qty,
           unitPrice:   unit,
           lineTotal:   total,
