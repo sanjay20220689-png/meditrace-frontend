@@ -269,8 +269,9 @@
         <!-- Batch number -->
         <div>
           <label class="text-xs font-extrabold text-textMuted dark:text-textMutedDark">Batch Number</label>
-          <input id="batchNumber" required type="text" placeholder="e.g., BT-2026-001"
-            class="mt-1 w-full h-11 rounded-full px-4 bg-white/80 dark:bg-pageBgDark border border-black/10 dark:border-borderDark text-textDark dark:text-white focus:outline-none focus:ring-4 focus:ring-brandBlue/15 focus:border-brandBlue" />
+          <input id="batchNumber" required type="text" readonly
+            class="mt-1 w-full h-11 rounded-full px-4 bg-black/5 dark:bg-white/5 border border-black/10 dark:border-borderDark text-textDark dark:text-white font-mono cursor-default" />
+          <p class="text-[11px] font-bold text-textMuted dark:text-textMutedDark mt-1">Auto-generated from selected medicine.</p>
         </div>
 
         <!-- Supplier select -->
@@ -546,6 +547,20 @@
     }).join("");
   }
 
+  // ── Batch number generator ─────────────────────────────────────────────────
+  function generateBatchNumber(medicineId) {
+    const med = allMeds.find(m => m.medicineId === medicineId);
+    // Take first 4 letters of medicine name, uppercase, strip non-alpha
+    const code = med ? med.name.replace(/[^a-zA-Z]/g, '').slice(0, 4).toUpperCase() : 'MED';
+    // Format: BATCH-CODE-YYYYMMDD-XXX (random 3-digit suffix)
+    const today = new Date();
+    const date  = today.getFullYear().toString() +
+                  String(today.getMonth() + 1).padStart(2, '0') +
+                  String(today.getDate()).padStart(2, '0');
+    const rand  = String(Math.floor(Math.random() * 900) + 100); // 100–999
+    return `BATCH-${code}-${date}-${rand}`;
+  }
+
   // ── Add Batch Modal ────────────────────────────────────────────────────────
   function populateModalDropdowns() {
     const medSel = document.getElementById("medicineSelect");
@@ -563,8 +578,17 @@
     // Set default expiry to 1 year from now
     const d = new Date(); d.setFullYear(d.getFullYear() + 1);
     document.getElementById("expiryDate").value = d.toISOString().split("T")[0];
+    // Generate initial batch number (no medicine selected yet, uses generic code)
+    document.getElementById("batchNumber").value = generateBatchNumber(null);
     document.getElementById("batchModal").classList.remove("hidden");
     document.body.classList.add("overflow-hidden");
+  });
+
+  // Regenerate batch number whenever medicine changes
+  document.getElementById("medicineSelect").addEventListener("change", function() {
+    if (this.value) {
+      document.getElementById("batchNumber").value = generateBatchNumber(this.value);
+    }
   });
 
   function closeModal() {
