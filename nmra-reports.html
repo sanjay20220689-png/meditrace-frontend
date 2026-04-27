@@ -85,6 +85,7 @@
       <div class="max-w-[1200px] mx-auto">
         <div class="mt-1">
           <h1 class="text-3xl font-black text-textDark dark:text-white">NMRA Reports</h1>
+          <p class="text-textMuted dark:text-textMutedDark font-medium mt-1">Compliance exports generated from live backend data.</p>
         </div>
 
         <!-- KPI banner -->
@@ -97,16 +98,16 @@
         <!-- Export cards -->
         <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
 
-          <!-- Supplier Intake — with date range filter -->
+          <!-- Supplier Intake -->
           <div class="rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft overflow-hidden">
             <div class="p-6 border-b border-black/5 dark:border-borderDark">
               <div class="flex items-center gap-2">
                 <span class="material-symbols-outlined text-brandBlue">local_shipping</span>
                 <h2 class="text-lg font-black text-textDark dark:text-white">Supplier Intake Report</h2>
               </div>
+              <p class="text-sm text-textMuted dark:text-textMutedDark mt-2">All batches received from a supplier — includes intake date, batch no., medicine, expiry, quantity and prices.</p>
             </div>
             <div class="p-6 space-y-4">
-              <!-- Supplier select -->
               <div>
                 <label class="text-sm font-extrabold text-textDark dark:text-white">Supplier</label>
                 <div class="mt-2 relative">
@@ -116,7 +117,6 @@
                   <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-textMuted dark:text-textMutedDark">expand_more</span>
                 </div>
               </div>
-              <!-- Optional date range filter -->
               <div>
                 <label class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">Filter by intake date (optional)</label>
                 <div class="mt-2 grid grid-cols-2 gap-3">
@@ -129,6 +129,7 @@
                     <input id="supplierDateTo" type="date" class="mt-1 w-full rounded-full h-10 px-4 bg-white/80 dark:bg-pageBgDark border border-black/10 dark:border-borderDark text-textDark dark:text-white text-sm focus:outline-none focus:ring-4 focus:ring-brandBlue/15 focus:border-brandBlue" />
                   </div>
                 </div>
+                <p class="text-[11px] text-textMuted dark:text-textMutedDark mt-1">Leave blank to export all batches for the selected supplier.</p>
               </div>
               <button onclick="exportSupplierIntake()" class="h-12 w-full rounded-full bg-brandBlue text-white font-extrabold hover:bg-brandBlue/90 transition flex items-center justify-center gap-2">
                 <span class="material-symbols-outlined text-base">download</span>Export Supplier Intake
@@ -157,12 +158,13 @@
           </div>
         </section>
 
-        <!-- Write-Off Report with date filter -->
+        <!-- Write-Off Report -->
         <section class="mt-6 rounded-[24px] bg-panelBg dark:bg-panelBgDark border border-black/5 dark:border-borderDark shadow-soft overflow-hidden">
           <div class="p-5 border-b border-black/5 dark:border-borderDark">
             <div class="flex items-center justify-between gap-3 flex-wrap">
               <div>
                 <div class="flex items-center gap-2"><span class="material-symbols-outlined text-brandRed">delete</span><h2 class="text-lg font-black text-textDark dark:text-white">Write-Off Disposal Report</h2></div>
+                <p class="text-sm text-textMuted dark:text-textMutedDark mt-1">All expired / disposed stock — required for NMRA audit readiness.</p>
               </div>
               <button onclick="exportWriteOffs()" class="h-11 px-5 rounded-full bg-brandRed text-white font-extrabold text-sm hover:bg-brandRed/90 transition flex items-center gap-2"><span class="material-symbols-outlined text-base">download</span>Export Write-Off Report</button>
             </div>
@@ -199,6 +201,7 @@
           <div class="p-5 border-b border-black/5 dark:border-borderDark flex items-center justify-between gap-3 flex-wrap">
             <div>
               <p class="text-xs font-extrabold text-textMuted dark:text-textMutedDark uppercase">Batch Intake Preview</p>
+              <p class="text-sm text-textMuted dark:text-textMutedDark mt-1">Live from your backend — first 12 batches sorted by expiry date (FEFO order).</p>
             </div>
             <a href="inventory.html" class="text-brandBlue font-extrabold text-sm hover:underline">Go to Inventory →</a>
           </div>
@@ -283,7 +286,6 @@
       _medName:      medMap[b.medicineId]?.name      || b.medicineId,
       _supplierName: supplierMap[b.supplierId]?.name || b.supplierId,
       _supplierId:   b.supplierId,
-      _createdAt:    b.createdAt || b.receivedAt || b.intakeDate || null,
     }));
     allBatches.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
 
@@ -307,10 +309,10 @@
   function renderIntakePreview() {
     const tbody = document.getElementById("intakeRows"), rows = allBatches.slice(0,12);
     if (!rows.length) { tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-10 text-center"><p class="font-extrabold text-textDark dark:text-white">No inventory data</p><p class="text-sm text-textMuted dark:text-textMutedDark mt-1">Add batches in Inventory first.</p></td></tr>`; return; }
-    tbody.innerHTML = rows.map(b => `<tr class="hover:bg-white/60 dark:hover:bg-white/5 transition"><td class="px-6 py-4 font-mono text-sm font-extrabold text-textDark dark:text-white">${esc(b.batchNumber)}</td><td class="px-6 py-4 text-sm font-extrabold text-textDark dark:text-white">${esc(b._supplierName)}</td><td class="px-6 py-4 text-sm text-textMuted dark:text-textMutedDark">${esc(b._medName)}</td><td class="px-6 py-4 text-sm text-textMuted dark:text-textMutedDark">${esc(b.expiryDate)}</td><td class="px-6 py-4 text-sm text-textMuted dark:text-textMutedDark">${b.costPrice!=null?`LKR ${Number(b.costPrice).toFixed(2)}`:"—"}</td><td class="px-6 py-4 text-right text-sm font-extrabold text-textDark dark:text-white">${b.quantityAvailable}</td></tr>`).join("");
+    tbody.innerHTML = rows.map(b => `<tr class="hover:bg-white/60 dark:hover:bg-white/5 transition"><td class="px-6 py-4 font-mono text-sm font-extrabold text-textDark dark:text-white">${esc(b.batchNumber)}</td><td class="px-6 py-4 text-sm font-extrabold text-textDark dark:text-white">${esc(b._supplierName)}</td><td class="px-6 py-4 text-sm text-textMuted dark:text-textMutedDark">${esc(b._medName)}</td><td class="px-6 py-4 text-sm text-textMuted dark:text-textMutedDark">${esc(b.expiryDate)}</td><td class="px-6 py-4 text-sm text-textMuted dark:text-textMutedDark">${b.costPrice!=null?`LKR ${Number(b.costPrice).toFixed(2)}`:"N/A"}</td><td class="px-6 py-4 text-right text-sm font-extrabold text-textDark dark:text-white">${b.quantityAvailable}</td></tr>`).join("");
   }
 
-  // ── Write-off date parser ─────────────────────────────────────────────────
+  // ── Write-off date parser ──────────────────────────────────────────────────
   function parseWriteOffDate(w) {
     const raw = w.writtenOffAt ?? w.createdAt ?? w.timestamp ?? w.date ?? w.writtenAt ?? w.writeOffDate ?? w.written_at ?? null;
     if (raw === null || raw === undefined) return null;
@@ -326,7 +328,7 @@
     return null;
   }
 
-  // ── Batch date parser (for supplier intake date filter) ───────────────────
+  // ── Batch intake date parser ───────────────────────────────────────────────
   function parseBatchDate(b) {
     const raw = b.createdAt ?? b.receivedAt ?? b.intakeDate ?? null;
     if (!raw) return null;
@@ -383,41 +385,49 @@
     tbody.innerHTML = filtered.map(w => {
       const batch = batchMap[w.batchId] || {};
       const d = parseWriteOffDate(w);
-      const date = d ? d.toLocaleDateString("en-LK", { day:"2-digit", month:"short", year:"numeric" }) : "—";
-      return `<tr class="hover:bg-white/60 dark:hover:bg-white/5 transition"><td class="px-6 py-4 font-mono text-sm font-extrabold text-textDark dark:text-white">${esc(batch.batchNumber || (w.batchId||"").slice(0,8)+"…")}</td><td class="px-6 py-4 text-sm text-textDark dark:text-white font-bold">${esc(batch._medName||"—")}</td><td class="px-6 py-4 text-sm font-extrabold text-brandRed">${w.quantityWrittenOff??"—"}</td><td class="px-6 py-4 text-sm text-textMuted dark:text-textMutedDark">${esc(w.reason||"—")}</td><td class="px-6 py-4 text-sm font-bold text-brandRed">${w.financialLoss!=null?`LKR ${Number(w.financialLoss).toFixed(2)}`:"—"}</td><td class="px-6 py-4 text-right text-sm font-bold text-textDark dark:text-white">${date}</td></tr>`;
+      const date = d ? d.toLocaleDateString("en-LK", { day:"2-digit", month:"short", year:"numeric" }) : "N/A";
+      return `<tr class="hover:bg-white/60 dark:hover:bg-white/5 transition"><td class="px-6 py-4 font-mono text-sm font-extrabold text-textDark dark:text-white">${esc(batch.batchNumber || (w.batchId||"").slice(0,8)+"...")}</td><td class="px-6 py-4 text-sm text-textDark dark:text-white font-bold">${esc(batch._medName||"N/A")}</td><td class="px-6 py-4 text-sm font-extrabold text-brandRed">${w.quantityWrittenOff??"N/A"}</td><td class="px-6 py-4 text-sm text-textMuted dark:text-textMutedDark">${esc(w.reason||"N/A")}</td><td class="px-6 py-4 text-sm font-bold text-brandRed">${w.financialLoss!=null?`LKR ${Number(w.financialLoss).toFixed(2)}`:"N/A"}</td><td class="px-6 py-4 text-right text-sm font-bold text-textDark dark:text-white">${date}</td></tr>`;
     }).join("");
   }
 
-  // ── CSV helpers ────────────────────────────────────────────────────────────
+  // ── CSV helper — adds UTF-8 BOM so Excel reads special chars correctly ─────
   function toCsv(headers, rows) {
-    const q = v => `"${String(v??"").replace(/"/g,'""')}"`;
-    return [headers.map(h=>q(h.label)).join(","), ...rows.map(r=>headers.map(h=>q(r[h.key])).join(","))].join("\n");
+    const q = v => {
+      // Replace em dash and other special chars with plain ASCII alternatives
+      const s = String(v ?? "").replace(/\u2014/g, "-").replace(/\u2013/g, "-").replace(/\u00a0/g, " ");
+      return s.includes(",") || s.includes('"') || s.includes("\n")
+        ? `"${s.replace(/"/g, '""')}"`
+        : s;
+    };
+    return [headers.map(h => q(h.label)).join(","), ...rows.map(r => headers.map(h => q(r[h.key])).join(","))].join("\n");
   }
+
+  // ── Download with UTF-8 BOM so Excel opens correctly ──────────────────────
   function downloadCsv(filename, csv) {
-    const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8;"})), download: filename });
+    // \uFEFF is the UTF-8 BOM — tells Excel to use UTF-8 encoding
+    const bom  = "\uFEFF";
+    const blob = new Blob([bom + csv], { type: "text/csv;charset=utf-8;" });
+    const a    = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: filename });
     document.body.appendChild(a); a.click(); a.remove();
   }
 
-  // ── Export: Supplier Intake (with optional date filter) ───────────────────
+  // ── Export: Supplier Intake (with intake date column + date filter) ────────
   function exportSupplierIntake() {
     const supplierId = document.getElementById("supplierSelect").value;
     if (!supplierId) { showToast("Please select a supplier.", "error"); return; }
 
-    const supplier  = allSuppliers.find(s => s.supplierId === supplierId);
-    const fromVal   = document.getElementById("supplierDateFrom").value;
-    const toVal     = document.getElementById("supplierDateTo").value;
-    const fromDate  = fromVal ? new Date(fromVal + "T00:00:00") : null;
-    const toDate    = toVal   ? new Date(toVal   + "T23:59:59") : null;
+    const supplier = allSuppliers.find(s => s.supplierId === supplierId);
+    const fromVal  = document.getElementById("supplierDateFrom").value;
+    const toVal    = document.getElementById("supplierDateTo").value;
+    const fromDate = fromVal ? new Date(fromVal + "T00:00:00") : null;
+    const toDate   = toVal   ? new Date(toVal   + "T23:59:59") : null;
 
     let rows = allBatches.filter(b => b._supplierId === supplierId);
 
-    // Apply date filter if set — filters by batch createdAt / receivedAt
     if (fromDate || toDate) {
       rows = rows.filter(b => {
         const d = parseBatchDate(b);
-        // If batch has no date field and a filter is set, include it anyway
-        // (date not stored = can't exclude it definitively)
-        if (!d) return true;
+        if (!d) return true; // no date stored — include by default
         if (fromDate && d < fromDate) return false;
         if (toDate   && d > toDate)   return false;
         return true;
@@ -426,26 +436,34 @@
 
     if (!rows.length) { showToast("No batches found for this supplier.", "error"); return; }
 
-    const csvRows = rows.map(b => ({
-      batchNumber:  b.batchNumber,
-      supplier:     b._supplierName,
-      medicine:     b._medName,
-      expiryDate:   b.expiryDate,
-      costPrice:    b.costPrice    != null ? Number(b.costPrice).toFixed(2)    : "",
-      sellingPrice: b.sellingPrice != null ? Number(b.sellingPrice).toFixed(2) : "",
-      qty:          b.quantityAvailable,
-    }));
+    const csvRows = rows.map(b => {
+      // Parse intake date for the CSV column
+      const intakeD = parseBatchDate(b);
+      const intakeDateStr = intakeD ? intakeD.toISOString().split("T")[0] : "";
+      return {
+        batchNumber:  b.batchNumber,
+        supplier:     b._supplierName,
+        medicine:     b._medName,
+        intakeDate:   intakeDateStr,   // NEW column
+        expiryDate:   b.expiryDate,
+        costPrice:    b.costPrice    != null ? Number(b.costPrice).toFixed(2)    : "",
+        sellingPrice: b.sellingPrice != null ? Number(b.sellingPrice).toFixed(2) : "",
+        qty:          b.quantityAvailable,
+      };
+    });
 
     const safeName = (supplier?.name || supplierId).replace(/\s+/g, "-");
     const suffix   = (fromVal && toVal) ? `_${fromVal}_to_${toVal}` : (fromVal ? `_from_${fromVal}` : (toVal ? `_to_${toVal}` : ""));
+
     downloadCsv(`supplier-intake_${safeName}${suffix}.csv`, toCsv([
-      {key:"batchNumber", label:"Batch Number"},
-      {key:"supplier",    label:"Supplier"},
-      {key:"medicine",    label:"Medicine"},
-      {key:"expiryDate",  label:"Expiry Date"},
-      {key:"costPrice",   label:"Cost Price (LKR)"},
-      {key:"sellingPrice",label:"Selling Price (LKR)"},
-      {key:"qty",         label:"Quantity Available"},
+      { key: "batchNumber",  label: "Batch Number" },
+      { key: "supplier",     label: "Supplier" },
+      { key: "medicine",     label: "Medicine" },
+      { key: "intakeDate",   label: "Intake Date" },      // NEW column
+      { key: "expiryDate",   label: "Expiry Date" },
+      { key: "costPrice",    label: "Cost Price (LKR)" },
+      { key: "sellingPrice", label: "Selling Price (LKR)" },
+      { key: "qty",          label: "Quantity Available" },
     ], csvRows));
     showToast(`Exported ${csvRows.length} batch(es) for ${supplier?.name}.`);
   }
@@ -455,21 +473,49 @@
     const from = document.getElementById("dateFrom").value, to = document.getElementById("dateTo").value;
     if (!from || !to) { showToast("Please select both dates.", "error"); return; }
     if (from > to)    { showToast("From date cannot be after To date.", "error"); return; }
-    showToast("Fetching sales data…");
+    showToast("Fetching sales data...");
     const salesData = await apiFetch(`/api/sales?startDate=${from}&endDate=${to}`);
     const sales = Array.isArray(salesData) ? salesData : (salesData?.sales || salesData?.data || []);
     if (!sales.length) { showToast(`No sales found between ${from} and ${to}.`, "error"); return; }
+
     const batchMap = {};
     allBatches.forEach(b => { batchMap[b.batchId] = b; });
+
     const rows = [];
     sales.forEach(sale => {
-      const saleDate = sale.createdAt ? new Date(sale.createdAt).toISOString().split("T")[0] : "—";
-      (sale.items||[]).forEach(item => {
-        const batch = batchMap[item.batchId]||{};
-        rows.push({ saleId:sale.saleId, date:saleDate, medicineId:item.medicineId, medicine:batch._medName||item.medicineId, batchNumber:batch.batchNumber||item.batchId, batchExpiry:batch.expiryDate||"—", supplier:batch._supplierName||"—", qty:item.quantity, unitPrice:item.unitPrice!=null?Number(item.unitPrice).toFixed(2):"—", lineTotal:item.unitPrice!=null?(item.unitPrice*item.quantity).toFixed(2):"—" });
+      // Parse sale date properly — avoid em dash fallback
+      let saleDate = "";
+      if (sale.createdAt) {
+        const d = new Date(sale.createdAt);
+        if (!isNaN(d.getTime())) saleDate = d.toISOString().split("T")[0];
+      }
+      (sale.items || []).forEach(item => {
+        const batch = batchMap[item.batchId] || {};
+        rows.push({
+          saleId:      sale.saleId      || "",
+          date:        saleDate,
+          medicine:    batch._medName   || item.medicineId || "",
+          batchNumber: batch.batchNumber|| item.batchId    || "",
+          batchExpiry: batch.expiryDate || "",
+          supplier:    batch._supplierName || "",
+          qty:         item.quantity    ?? "",
+          unitPrice:   item.unitPrice   != null ? Number(item.unitPrice).toFixed(2)                    : "",
+          lineTotal:   item.unitPrice   != null ? (item.unitPrice * item.quantity).toFixed(2)          : "",
+        });
       });
     });
-    downloadCsv(`sales_${from}_to_${to}.csv`, toCsv([{key:"saleId",label:"Sale ID"},{key:"date",label:"Date"},{key:"medicine",label:"Medicine"},{key:"batchNumber",label:"Batch No."},{key:"batchExpiry",label:"Batch Expiry"},{key:"supplier",label:"Supplier"},{key:"qty",label:"Qty Sold"},{key:"unitPrice",label:"Unit Price (LKR)"},{key:"lineTotal",label:"Line Total (LKR)"}], rows));
+
+    downloadCsv(`sales_${from}_to_${to}.csv`, toCsv([
+      { key: "saleId",      label: "Sale ID" },
+      { key: "date",        label: "Date" },
+      { key: "medicine",    label: "Medicine" },
+      { key: "batchNumber", label: "Batch No." },
+      { key: "batchExpiry", label: "Batch Expiry" },
+      { key: "supplier",    label: "Supplier" },
+      { key: "qty",         label: "Qty Sold" },
+      { key: "unitPrice",   label: "Unit Price (LKR)" },
+      { key: "lineTotal",   label: "Line Total (LKR)" },
+    ], rows));
     showToast(`Exported ${rows.length} line(s) from ${sales.length} sale(s).`);
   }
 
@@ -480,12 +526,45 @@
     allBatches.forEach(b => { batchMap[b.batchId] = b; });
     let source = allWriteOffs;
     if (writeOffFilterFrom || writeOffFilterTo) {
-      source = allWriteOffs.filter(w => { const d=parseWriteOffDate(w); if(!d)return false; if(writeOffFilterFrom&&d<writeOffFilterFrom)return false; if(writeOffFilterTo&&d>writeOffFilterTo)return false; return true; });
+      source = allWriteOffs.filter(w => {
+        const d = parseWriteOffDate(w);
+        if (!d) return false;
+        if (writeOffFilterFrom && d < writeOffFilterFrom) return false;
+        if (writeOffFilterTo   && d > writeOffFilterTo)   return false;
+        return true;
+      });
       if (!source.length) { showToast("No records match the current filter.", "error"); return; }
     }
-    const rows = source.map(w => { const batch=batchMap[w.batchId]||{}, d=parseWriteOffDate(w); return { writeOffId:w.writeOffId||w.id||"—", batchNumber:batch.batchNumber||w.batchId||"—", medicine:batch._medName||"—", supplier:batch._supplierName||"—", quantityWrittenOff:w.quantityWrittenOff??"—", reason:w.reason||"—", financialLoss:w.financialLoss!=null?Number(w.financialLoss).toFixed(2):"—", date:d?d.toISOString().split("T")[0]:"—" }; });
-    const from=(writeOffFilterFrom)?writeOffFilterFrom.toISOString().split("T")[0]:null, to=(writeOffFilterTo)?writeOffFilterTo.toISOString().split("T")[0]:null;
-    downloadCsv(`write-offs${from&&to?`_${from}_to_${to}`:`_${new Date().toISOString().split("T")[0]}`}.csv`, toCsv([{key:"writeOffId",label:"Write-Off ID"},{key:"batchNumber",label:"Batch No."},{key:"medicine",label:"Medicine"},{key:"supplier",label:"Supplier"},{key:"quantityWrittenOff",label:"Qty Written Off"},{key:"reason",label:"Reason"},{key:"financialLoss",label:"Financial Loss (LKR)"},{key:"date",label:"Date"}], rows));
+    const rows = source.map(w => {
+      const batch = batchMap[w.batchId] || {};
+      const d     = parseWriteOffDate(w);
+      return {
+        writeOffId:         w.writeOffId || w.id || "",
+        batchNumber:        batch.batchNumber || w.batchId || "",
+        medicine:           batch._medName    || "",
+        supplier:           batch._supplierName || "",
+        quantityWrittenOff: w.quantityWrittenOff ?? "",
+        reason:             w.reason || "",
+        financialLoss:      w.financialLoss != null ? Number(w.financialLoss).toFixed(2) : "",
+        date:               d ? d.toISOString().split("T")[0] : "",
+      };
+    });
+
+    const from = writeOffFilterFrom ? writeOffFilterFrom.toISOString().split("T")[0] : null;
+    const to   = writeOffFilterTo   ? writeOffFilterTo.toISOString().split("T")[0]   : null;
+    downloadCsv(
+      `write-offs${from && to ? `_${from}_to_${to}` : `_${new Date().toISOString().split("T")[0]}`}.csv`,
+      toCsv([
+        { key: "writeOffId",         label: "Write-Off ID" },
+        { key: "batchNumber",        label: "Batch No." },
+        { key: "medicine",           label: "Medicine" },
+        { key: "supplier",           label: "Supplier" },
+        { key: "quantityWrittenOff", label: "Qty Written Off" },
+        { key: "reason",             label: "Reason" },
+        { key: "financialLoss",      label: "Financial Loss (LKR)" },
+        { key: "date",               label: "Date" },
+      ], rows)
+    );
     showToast(`Exported ${rows.length} write-off record(s).`);
   }
 
@@ -495,24 +574,26 @@
   window.applyWriteOffFilter  = applyWriteOffFilter;
   window.clearWriteOffFilter  = clearWriteOffFilter;
 
-  function showToast(msg, type="success") {
-    const t = Object.assign(document.createElement("div"), { className: `fixed bottom-6 right-6 z-50 ${type==="error"?"bg-brandRed":"bg-brandBlue"} text-white px-5 py-3 rounded-2xl font-bold text-sm shadow-soft max-w-sm`, textContent: msg });
+  function showToast(msg, type = "success") {
+    const t = Object.assign(document.createElement("div"), {
+      className: `fixed bottom-6 right-6 z-50 ${type === "error" ? "bg-brandRed" : "bg-brandBlue"} text-white px-5 py-3 rounded-2xl font-bold text-sm shadow-soft max-w-sm`,
+      textContent: msg
+    });
     document.body.appendChild(t); setTimeout(() => t.remove(), 4000);
   }
 
-  function esc(str) { return String(str??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  function esc(str) { return String(str ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
   function applyTheme(theme) {
-    ["themeIconTop","themeIconSide"].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=theme==="dark"?"light_mode":"dark_mode"; });
-    theme==="dark" ? document.documentElement.classList.add("dark") : document.documentElement.classList.remove("dark");
+    ["themeIconTop","themeIconSide"].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = theme === "dark" ? "light_mode" : "dark_mode"; });
+    theme === "dark" ? document.documentElement.classList.add("dark") : document.documentElement.classList.remove("dark");
     localStorage.setItem("meditrace_theme", theme);
   }
-  (function(){ const s=localStorage.getItem("meditrace_theme"); applyTheme(s||(window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light")); })();
-  ["themeToggleTop","themeToggleSide"].forEach(id => { const b=document.getElementById(id); if(b) b.addEventListener("click",()=>applyTheme(document.documentElement.classList.contains("dark")?"light":"dark")); });
-
-  (function(){ const active=document.body.getAttribute("data-page"); document.querySelectorAll(".navbtn").forEach(a=>{ const k=a.getAttribute("data-nav"),i=a.querySelector(".navicon"); a.classList.remove("bg-brandBlue/10","dark:bg-brandBlue/15","border-black/5","dark:border-borderDark"); if(i) i.classList.remove("text-brandBlue"); if(k===active){ a.classList.add("bg-brandBlue/10","dark:bg-brandBlue/15","border-black/5","dark:border-borderDark"); if(i){i.classList.remove("text-textMuted","dark:text-textMutedDark");i.classList.add("text-brandBlue");} } }); })();
-
+  (function(){ const s = localStorage.getItem("meditrace_theme"); applyTheme(s || (window.matchMedia("(prefers-color-scheme:dark)").matches ? "dark" : "light")); })();
+  ["themeToggleTop","themeToggleSide"].forEach(id => { const b = document.getElementById(id); if(b) b.addEventListener("click", () => applyTheme(document.documentElement.classList.contains("dark") ? "light" : "dark")); });
+  (function(){ const active = document.body.getAttribute("data-page"); document.querySelectorAll(".navbtn").forEach(a => { const k = a.getAttribute("data-nav"), i = a.querySelector(".navicon"); a.classList.remove("bg-brandBlue/10","dark:bg-brandBlue/15","border-black/5","dark:border-borderDark"); if(i) i.classList.remove("text-brandBlue"); if(k === active){ a.classList.add("bg-brandBlue/10","dark:bg-brandBlue/15","border-black/5","dark:border-borderDark"); if(i){i.classList.remove("text-textMuted","dark:text-textMutedDark");i.classList.add("text-brandBlue");} } }); })();
   (function(){ if (localStorage.getItem("meditrace_role") === "owner") { const el = document.getElementById("navUsersLink"); if (el) el.style.display = ""; } })();
+
   init();
 </script>
 </body>

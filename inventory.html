@@ -408,19 +408,20 @@
     allSuppliers.forEach(s => { supplierMap[s.supplierId] = s; });
 
     // Annotate batches
-    allBatches = allBatches.map(b => ({
-      ...b,
-      _medName:      medMap[b.medicineId]?.name      || b.medicineId.slice(0,8) + "…",
-      _supplierName: supplierMap[b.supplierId]?.name || b.supplierId.slice(0,8) + "…",
-    }));
+    allBatches = batchArrays.flat().filter(Boolean)
+      .filter(b => b.quantityAvailable > 0)   // ← exclude empty batches
+      .map(b => ({
+        ...b,
+        _medName:      medMap[b.medicineId]?.name      || b.medicineId.slice(0,8) + "…",
+        _supplierName: supplierMap[b.supplierId]?.name || b.supplierId.slice(0,8) + "…",
+      }));
 
-    // KPIs
-    const nearCount = (batchNear || []).length;
-    document.getElementById("kpiItems").textContent     = medIds.length;
-    document.getElementById("kpiBatches").textContent   = allBatches.length;
+    // KPIs — filter zero-qty from near-expiry count too
+    const nearCount = (batchNear || []).filter(b => b.quantityAvailable > 0).length;
+    document.getElementById("kpiItems").textContent      = medIds.length;
+    document.getElementById("kpiBatches").textContent    = allBatches.length;
     document.getElementById("kpiNearExpiry").textContent = nearCount;
-    document.getElementById("kpiSuppliers").textContent = allSuppliers.length;
-
+    document.getElementById("kpiSuppliers").textContent  = allSuppliers.length;
     renderTable();
     populateModalDropdowns();
   }
@@ -437,7 +438,7 @@
     const q      = (document.getElementById("searchInput").value || "").trim().toLowerCase();
     const filter = document.getElementById("statusFilter").value;
 
-    let rows = allBatches.slice().sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
+    let rows = allBatches.filter(b => b.quantityAvailable > 0).sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
 
     if (q) rows = rows.filter(b =>
       b._medName.toLowerCase().includes(q) ||
