@@ -483,14 +483,33 @@
 
     const rows = [];
     sales.forEach(sale => {
-      // Parse sale date properly — avoid em dash fallback
+      // Your Firestore uses saleDateTime — check all possible field names
+      const rawDate = sale.saleDateTime || sale.createdAt || sale.date || sale.timestamp || null;
       let saleDate = "";
-      if (sale.createdAt) {
-        const d = new Date(sale.createdAt);
-        if (!isNaN(d.getTime())) saleDate = d.toISOString().split("T")[0];
+      if (rawDate) {
+        let d;
+        // Firestore Timestamp object: { _seconds: N } or { seconds: N }
+        if (typeof rawDate === "object" && rawDate !== null) {
+          const secs = rawDate._seconds ?? rawDate.seconds;
+          if (typeof secs === "number") d = new Date(secs * 1000);
+        } else if (typeof rawDate === "number") {
+          d = new Date(rawDate);
+        } else {
+          d = new Date(rawDate);
+        }
+        if (d && !isNaN(d.getTime())) saleDate = d.toISOString().split("T")[0];
       }
+
+      // Your Firestore items use: batchId, medicineId, quantity, unitPrice, lineTotal
       (sale.items || []).forEach(item => {
         const batch = batchMap[item.batchId] || {};
+        const qty      = item.quantity ?? item.qty ?? "";
+        const unit     = item.unitPrice != null ? Number(item.unitPrice).toFixed(2) : "";
+        const total    = item.lineTotal != null
+          ? Number(item.lineTotal).toFixed(2)
+          : (item.unitPrice != null && qty !== ""
+              ? (Number(item.unitPrice) * Number(qty)).toFixed(2)
+              : "");
         rows.push({
           saleId:      sale.saleId      || "",
           date:        saleDate,
@@ -498,9 +517,9 @@
           batchNumber: batch.batchNumber|| item.batchId    || "",
           batchExpiry: batch.expiryDate || "",
           supplier:    batch._supplierName || "",
-          qty:         item.quantity    ?? "",
-          unitPrice:   item.unitPrice   != null ? Number(item.unitPrice).toFixed(2)                    : "",
-          lineTotal:   item.unitPrice   != null ? (item.unitPrice * item.quantity).toFixed(2)          : "",
+          qty,
+          unitPrice:   unit,
+          lineTotal:   total,
         });
       });
     });
